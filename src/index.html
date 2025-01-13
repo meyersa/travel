@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>trip planner</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link href="styles.css" rel="stylesheet" />
+    <!-- Leaflet CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <!-- Leaflet JS -->
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <!-- FontAwesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+  <body>
+    <header>
+      <div class="right">
+        <h2>trip planner</h2>
+      </div>
+      <div class="left">
+        <h3 class="mobile-hide">new adventure</h3>
+        <i class="fa-solid fa-plus"></i>
+      </div>
+    </header>
+    <content>
+      <div class="attention">
+        <h1>let <span class="fancy">ai</span> do the work while <span class="fancy">you</span> travel</h1>
+      </div>
+      <div>
+        <h2>itineraries</h2>
+        <div class="spacer"></div>
+        <div id="itineraries">
+          <div class="box">
+            <h2 class="fancy">Your destination</h2>
+            <p>Where do you want to go?</p>
+            <img src="/placeholder.webp" alt="Placeholder tropical image" />
+          </div>
+        </div>
+      </div>
+      <div>
+        <h2>behind the scenes</h2>
+        <div class="spacer"></div>
+        <p>First you enter the important information</p>
+        <p></p>
+        <p><span class="fancy">where</span> you want to go</p>
+        <p><span class="fancy">when</span> you want to go</p>
+        <p><span class="fancy">what</span> you want to do</p>
+        <p>
+          Then like magic, chatGPT will determine the optimal places based off of too many factors to count, and provide
+          you with a custom itinerary
+        </p>
+      </div>
+    </content>
+    <footer>
+      <a href="https://github.com/meyersa/travel"><i class="fa-brands fa-square-github"></i></a>
+      <i class="fa-regular fa-copyright"></i>
+      <a href="https://fontawesome.com"><i class="fa-solid fa-font-awesome"></i></a>
+    </footer>
+    <script>
+      // Function to load trips and populate the #itineraries div
+      async function loadTrips() {
+        try {
+          // Fetch trips from the API endpoint
+          const response = await fetch("/trips");
+          if (!response.ok) {
+            throw new Error("Failed to fetch trips");
+          }
+          const trips = await response.json();
+
+          // Sort trips by startDate in descending order (newest first)
+          trips.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+
+          // Select and clear the #itineraries div
+          const itinerariesDiv = document.getElementById("itineraries");
+          itinerariesDiv.innerHTML = ""; // Clear existing content
+
+          // Populate with new trip boxes
+          trips.forEach((trip) => {
+            // Create box container
+            const box = document.createElement("div");
+            box.classList.add("box");
+
+            // Add trip content to the box
+            box.innerHTML = `
+            <h2 class="fancy">${trip.name}</h2>
+            <p>${trip.description}</p>
+            <img src="${trip.pictureUrl}" alt="${trip.name}" />
+          `;
+
+            // Append the box to the itineraries div
+            itinerariesDiv.appendChild(box);
+          });
+        } catch (error) {
+          console.error("Error loading trips:", error);
+        }
+      }
+
+      // Load trips when the page is ready
+      document.addEventListener("DOMContentLoaded", loadTrips);
+    </script>
+  </body>
+</html>
