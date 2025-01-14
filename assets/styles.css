@@ -52,7 +52,7 @@ h1 {
   color: var(--dark-blue);
 }
 
-p {
+p, li {
   font-family: sans-serif;
 }
 
@@ -107,7 +107,7 @@ content {
   margin: calc(var(--space) * 2) auto;
   background-color: var(--light-purple);
   padding: var(--space);
-  width: 30vw;
+  max-width: 600px;
   border-radius: calc(var(--space) / 2);
 }
 
