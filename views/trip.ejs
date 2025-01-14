@@ -7,37 +7,52 @@
   <body>
     <%- include('partials/header') %>
     <content>
+      <!-- Main Trip Banner Section -->
       <%- include('partials/attention', {title: trip.name, pictureUrl: trip.pictureUrl}) %>
-      <div>
-        <% trip.days.forEach(day => { %>
+
+      <!-- Loop through each day in the trip -->
+      <% trip.days.forEach(day => { %>
+      <section class="day-section">
         <h2><%= day.name %> (<%= day.date %>)</h2>
         <div class="spacer"></div>
         <p><%= day.description %></p>
-        <% day.stops.forEach(stop => { %>
-        <div class="box">
-          <h2>(<%= stop.startTime %> - <%= stop.endTime %>) <span class="fancy"><%= stop.name %></span></h2>
-          <p><%= stop.description %></p>
-          <% if (stop && stop.pictureUrl) { %>
-          <img src="<%= stop.pictureUrl %>" alt="<%= stop.name %>" />
-          <% } %>
+
+        <!-- Timeline for the day -->
+        <div class="boxwrap">
+          <% day.stops.forEach(stop => { %>
+          <div class="box">
+            <h3><%= stop.startTime %> - <%= stop.endTime %></h3>
+            <h2><span class="fancy"><%= stop.name %></span></h2>
+            <p><%= stop.description %></p>
+            <% if (stop && stop.pictureUrl) { %>
+            <img src="<%= stop.pictureUrl %>" alt="<%= stop.name %>" />
+            <% } %>
+          </div>
+          <% }) %>
         </div>
-        <% }) %> <% }) %>
+      </section>
+      <% }) %>
+
+      <!-- Additional Information Section -->
+      <section>
         <h2>Additional Information</h2>
         <div class="spacer"></div>
-        <% trip.additional.forEach(add => { %>
-        <div class="box">
-          <h2><span class="fancy"><%= add.title %></span></h2>
-          <% if (add && add.pictureUrl) { %>
-          <img src="<%= add.pictureUrl %>" alt="<%= add.title %>" />
-          <% } %>
-          <ul>
-            <% add.points.forEach(point => { %>
-            <li><%= point %></li>
-            <% }) %>
-          </ul>
+        <div class="boxwrap">
+          <% trip.additional.forEach(add => { %>
+          <div class="box">
+            <h2><span class="fancy"><%= add.title %></span></h2>
+            <% if (add && add.pictureUrl) { %>
+            <img src="<%= add.pictureUrl %>" alt="<%= add.title %>" />
+            <% } %>
+            <ul>
+              <% add.points.forEach(point => { %>
+              <li><%= point %></li>
+              <% }) %>
+            </ul>
+          </div>
+          <% }) %>
         </div>
-        <% }) %>
-      </div>
+      </section>
     </content>
     <%- include('partials/footer') %>
   </body>

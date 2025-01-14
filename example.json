@@ -14,8 +14,8 @@
             "stops": [
                 {
                     "name": "Golden Gate Bridge",
-                    "startTime": "15:00",
-                    "endTime": "17:00",
+                    "startTime": "2pm",
+                    "endTime": "5pm",
                     "lattitude": "37.8199",
                     "longitude": "-122.4783",
                     "description": "Walk across the Golden Gate Bridge and enjoy stunning views of the bay.",
@@ -31,17 +31,16 @@
             "stops": [
                 {
                     "name": "Alcatraz Island",
-                    "startTime": "09:00",
-                    "endTime": "12:00",
+                    "startTime": "9am",
+                    "endTime": "12pm",
                     "lattitude": "37.8267",
                     "longitude": "-122.4233",
-                    "description": "Take a ferry to Alcatraz and tour the historic prison.",
-                    "pictureUrl": "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.nps.gov%2Falca&psig=AOvVaw1Ekq0xa3Nq0zcRXbJN7yF5&ust=1736890500476000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCJCp77vT84oDFQAAAAAdAAAAABAE"
+                    "description": "Take a ferry to Alcatraz and tour the historic prison."
                 },
                 {
                     "name": "Fisherman's Wharf",
-                    "startTime": "14:00",
-                    "endTime": "17:00",
+                    "startTime": "2pm",
+                    "endTime": "5pm",
                     "lattitude": "37.8080",
                     "longitude": "-122.4177",
                     "description": "Enjoy fresh seafood, shopping, and street performances at Fisherman's Wharf.",
@@ -57,8 +56,8 @@
             "stops": [
                 {
                     "name": "Chinatown",
-                    "startTime": "10:00",
-                    "endTime": "12:00",
+                    "startTime": "10am",
+                    "endTime": "12pm",
                     "lattitude": "37.7941",
                     "longitude": "-122.4078",
                     "description": "Wander through Chinatown and enjoy its unique shops and eateries.",
@@ -66,8 +65,8 @@
                 },
                 {
                     "name": "Lombard Street",
-                    "startTime": "14:00",
-                    "endTime": "16:00",
+                    "startTime": "2pm",
+                    "endTime": "4pm",
                     "lattitude": "37.8021",
                     "longitude": "-122.4188",
                     "description": "Take photos of and walk down the famously crooked street.",
@@ -83,13 +82,31 @@
             "stops": [
                 {
                     "name": "Union Square",
-                    "startTime": "09:00",
-                    "endTime": "11:00",
+                    "startTime": "9am",
+                    "endTime": "11pm",
                     "lattitude": "37.7879",
                     "longitude": "-122.4075",
                     "description": "Enjoy a relaxed morning with coffee and shopping in Union Square.",
                     "pictureUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/San_Francisco_Union_Square.jpg/1200px-San_Francisco_Union_Square.jpg"
                 }
+            ]
+        }
+    ],
+    "additional": [
+        {
+            "title": "Other things to see",
+            "pictureUrl": "",
+            "points": [
+                "Golden Gate Park",
+                "San Francisco Zoo"
+            ]
+        },
+        {
+            "title": "What to watch out for",
+            "pictureUrl": "",
+            "points": [
+                "Crime rate around tourist areas",
+                "Traffic"
             ]
         }
     ]

@@ -52,7 +52,8 @@ h1 {
   color: var(--dark-blue);
 }
 
-p, li {
+p,
+li {
   font-family: sans-serif;
 }
 
@@ -91,8 +92,7 @@ body {
 
 content {
   margin: auto;
-  max-width: 1000;
-
+  max-width: 1000px;
 }
 .spacer {
   height: 5px;
@@ -101,14 +101,24 @@ content {
   margin-bottom: calc(var(--space) * 2);
 }
 
-.box {
-  box-shadow: 0px 6px 15px 2px rgb(143 143 143 / 20%);
-  max-height: 50vh;
-  margin: calc(var(--space) * 2) auto;
-  background-color: var(--light-purple);
+.boxwrap {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space);
+  box-sizing: border-box;
+  margin: var(--space) 0;
   padding: var(--space);
-  max-width: 600px;
+}
+.box {
+  box-shadow: 0px 0px 12px 2px rgb(160 160 143 / 50%);
+  max-height: 50vh;
+  padding: var(--space);
+  width: 100%;
+  max-width: 400px;
   border-radius: calc(var(--space) / 2);
+  box-sizing: border-box;
 }
 
 .box p {
