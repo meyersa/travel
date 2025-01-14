@@ -15,6 +15,13 @@
   --space: 1rem;
 }
 
+.left {
+  background-color: var(--light-blue);
+  padding: var(--space);
+  border-radius: var(--space);
+
+}
+
 html {
   background-color: var(--white);
   color: var(--dark-grey);
@@ -34,6 +41,7 @@ h1,
 h2,
 h3 {
   font-family: "Overpass", serif;
+
 }
 
 h1 {
@@ -63,6 +71,12 @@ header,
   flex-direction: row;
   align-items: center;
   gap: var(--space);
+
+}
+
+header, .left, .right a {
+  color: unset;
+  
 }
 
 header {
@@ -112,9 +126,10 @@ body {
     display: flex;
     flex-direction: column;
     margin: auto;
-    width: 100%;
+    padding: var(--space);
+    width: calc(100% - 2 * var(--space));
     max-width: 1000px;
-    height: 40vh;
+    height: 60vh;
     border-radius: var(--space);
     position: relative;
     overflow: hidden;
@@ -130,7 +145,7 @@ body {
     width: 100%;
     background-image: url("/demo.gif");
     z-index: -10;
-    background-size: 115%;
+    background-size: cover;
     background-position: center;
     opacity: 0.35;
     filter: brightness(1.65);
