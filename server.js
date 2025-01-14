@@ -1,57 +1,59 @@
 const express = require("express");
-const fs = require("fs") 
+const fs = require("fs");
 const path = require("path");
+
 const app = express();
+app.set("view engine", "ejs");
+
+// Set the views directory
+app.set("views", path.join(__dirname, "views"));
 
 // Serve static paths, setting up for API use
-app.use(express.static(path.join(__dirname, "src")));
+app.use(express.static(path.join(__dirname, "assets")));
 
 // Temporarily read in from JSON
-jsonFile = "/Users/augustmeyers/Coding/travel/example.json"
+jsonFile = "/Users/augustmeyers/Coding/travel/example.json";
 function readData(file) {
-    var jsonData = fs.readFileSync(file)
-    return JSON.parse(jsonData)
-
+  var jsonData = fs.readFileSync(file);
+  return JSON.parse(jsonData);
 }
 
 // List all trips (Unfinished)
 app.get("/trips", async (req, res) => {
-    console.log("Get request received for /trips - UNFINISHED") 
+  console.log("Get request received for /trips - UNFINISHED");
 
-    jsonData = readData(jsonFile) 
+  jsonData = readData(jsonFile);
 
-    // Return all trips (Just one for now) 
-    return res.json([
-        {
-            "id": jsonData["id"],
-            "name": jsonData["name"],
-            "startDate": jsonData["startDate"],
-            "description": jsonData["description"],
-            "pictureUrl": jsonData["pictureUrl"]
-    }])
-})
+  // Return all trips (Just one for now)
+  return res.json([
+    {
+      id: jsonData["id"],
+      name: jsonData["name"],
+      startDate: jsonData["startDate"],
+      description: jsonData["description"],
+      pictureUrl: jsonData["pictureUrl"],
+    },
+  ]);
+});
 
 app.get("/trip", async (req, res) => {
-    const { id } = req.query;
-    console.log("Get request received for /trip for ", id)
+  const { id } = req.query;
 
-    if (!id) {
-        return res.status(400).send("tripname is required");
+  if (!id) {
+    return res.status(400).send("Trip ID is required");
+  }
 
-    }
+  const cleanId = String(id).toLowerCase().trim();
 
-    cleanId = String(id).toLowerCase().trim()
+  jsonData = readData(jsonFile);
 
-    // Validate trip name against trips - UNFINISHED
-    if (cleanId != "asdlkfjasdflkjasdf") {
-        return res.status(400).send("tripname is not valid");
+  // Render the template with trip data
+  res.render("trip", { trip: jsonData });
+});
 
-    }
-
-    ret = await readData(jsonFile)
-    return res.json(ret)
-
-}) 
+app.get("/", async (req, res) => {
+  res.render("index");
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

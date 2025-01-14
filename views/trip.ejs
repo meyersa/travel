@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title><%= trip.name %> - Trip Planner</title>
+  <%- include('partials/head') %>
+</head>
+<body>
+  <%- include('partials/header') %>
+  <content>
+    <%- include('partials/attention', {title: trip.name, pictureUrl: trip.pictureUrl}) %>
+    <div>
+        <% trip.days.forEach(day => { %>
+          <h2><%= day.name %> (<%= day.date %>)</h2>
+          <div class="spacer"></div>
+            <p><%= day.description %></p>
+              <% day.stops.forEach(stop => { %>
+                <div class="box">
+                  <h2 >(<%= stop.startTime %> - <%= stop.endTime %>) <span class="fancy"><%= stop.name %></span></h2>
+                  <p><%= stop.description %></p>
+                  <img src="<%= stop.pictureUrl %>" alt="<%= stop.name %>" />
+                </div>
+
+              <% }) %>
+        <% }) %>
+    </div>
+  </content>
+  <%- include('partials/footer') %>
+</body>
+</html>

@@ -89,6 +89,11 @@ body {
   gap: calc(var(--space) * 5);
 }
 
+content {
+  margin: auto;
+  max-width: 1000;
+
+}
 .spacer {
   height: 5px;
   width: 10%;
@@ -99,10 +104,10 @@ body {
 .box {
   box-shadow: 0px 6px 15px 2px rgb(143 143 143 / 20%);
   max-height: 50vh;
-  margin: 0 auto;
+  margin: calc(var(--space) * 2) auto;
   background-color: var(--light-purple);
   padding: var(--space);
-  width: fit-content;
+  width: 30vw;
   border-radius: calc(var(--space) / 2);
 }
 
@@ -116,34 +121,6 @@ body {
   aspect-ratio: 16/9;
   max-height: 30vh;
   border-radius: calc(var(--space) / 2);
-}
-
-.attention {
-  display: flex;
-  flex-direction: column;
-  margin: auto;
-  padding: var(--space);
-  width: calc(100% - 2 * var(--space));
-  max-width: 1000px;
-  height: 60vh;
-  border-radius: var(--space);
-  position: relative;
-  overflow: hidden;
-  justify-content: center;
-  align-items: center;
-}
-
-.attention::after {
-  content: "";
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  background-image: url("/demo.gif");
-  z-index: -10;
-  background-size: cover;
-  background-position: center;
-  opacity: 0.35;
-  filter: brightness(1.65);
 }
 
 footer {

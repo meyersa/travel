@@ -1,46 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <title>trip planner</title>
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link href="styles.css" rel="stylesheet" />
-    <!-- Leaflet CSS -->
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""
-    />
-    <!-- Leaflet JS -->
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-      crossorigin=""
-    ></script>
-    <!-- FontAwesome -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    />
+    <%- include('partials/head') %>
   </head>
   <body>
-    <header>
-      <div class="right">
-        <h2>trip planner</h2>
-      </div>
-      <div class="left">
-        <i class="fa-solid fa-plus"></i>
-      </div>
-    </header>
+    <%- include('partials/header') %>
     <content>
-      <div class="attention">
-        <h1>let <span class="fancy">ai</span> do the work while <span class="fancy">you</span> travel</h1>
-      </div>
+      <%- include('partials/attention', {title: "let ai do the work while you travel", pictureUrl: "/demo.gif"}) %>
       <div>
         <h2>itineraries</h2>
         <div class="spacer"></div>
@@ -66,11 +33,7 @@
         </p>
       </div>
     </content>
-    <footer>
-      <a href="https://github.com/meyersa/travel"><i class="fa-brands fa-square-github"></i></a>
-      <i class="fa-regular fa-copyright"></i>
-      <a href="https://fontawesome.com"><i class="fa-solid fa-font-awesome"></i></a>
-    </footer>
+    <%- include('partials/footer') %>
     <script>
       // Function to load trips and populate the #itineraries div
       async function loadTrips() {
@@ -97,7 +60,7 @@
 
             // Add trip content to the box
             box.innerHTML = `
-            <h2 class="fancy"><a href="/view.html?id=${trip.id}">${trip.name}</a></h2>
+            <h2 class="fancy"><a href="/trip?id=${trip.id}">${trip.name}</a></h2>
             <p>${trip.description}</p>
             <img src="${trip.pictureUrl}" alt="${trip.name}" />
           `;
