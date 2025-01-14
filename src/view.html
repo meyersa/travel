@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>loading trip...</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link href="styles.css" rel="stylesheet" />
+    <!-- Leaflet CSS -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <!-- Leaflet JS -->
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <!-- FontAwesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+      integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+  </head>
+  <body>
+    <header>
+      <div class="right">
+        <h2><a href="/">trip planner</a></h2>
+      </div>
+      <div class="left">
+        <h3 class="mobile-hide">new adventure</h3>
+        <i class="fa-solid fa-plus"></i>
+      </div>
+    </header>
+    <content>
+      <div class="attention">
+        <h1 id="trip-name">loading location...</h1>
+      </div>
+      <div id="map"></div>
+    </content>
+    <footer>
+      <a href="https://github.com/meyersa/travel"><i class="fa-brands fa-square-github"></i></a>
+      <i class="fa-regular fa-copyright"></i>
+      <a href="https://fontawesome.com"><i class="fa-solid fa-font-awesome"></i></a>
+    </footer>
+    <script>
+      // Get query parameters from the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const tripId = urlParams.get("id");
+
+      // Check if an ID is provided
+      if (tripId) {
+        // Fetch trip data from the API
+        fetch(`/trip?id=${tripId}`)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("Failed to fetch trip data");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            // Populate the page with the fetched data
+            document.getElementById("trip-name").textContent = data.name;
+            document.getElementById("trip-description").textContent = data.description;
+            document.getElementById("trip-picture").src = data.pictureUrl;
+
+            const daysList = document.getElementById("trip-days");
+            data.days.forEach((day) => {
+              const dayItem = document.createElement("li");
+              dayItem.innerHTML = `
+          <h2>${day.name} (${day.date})</h2>
+          <p>${day.description}</p>
+          <img src="${day.pictureUrl}" alt="${day.name}" style="width: 100%; max-width: 300px;" />
+          <ul>
+            ${day.stops
+              .map(
+                (stop) => `
+                <li>
+                  <h3>${stop.name} (${stop.startTime} - ${stop.endTime})</h3>
+                  <p>${stop.description}</p>
+                  <img src="${stop.pictureUrl}" alt="${stop.name}" style="width: 100%; max-width: 200px;" />
+                </li>
+              `
+              )
+              .join("")}
+          </ul>
+        `;
+              daysList.appendChild(dayItem);
+            });
+          })
+          .catch((error) => {
+            console.error("Error fetching trip data:", error);
+            document.getElementById("trip-name").textContent = "Error loading trip";
+          });
+      } else {
+        document.getElementById("trip-name").textContent = "Trip ID not provided";
+      }
+    </script>
+  </body>
+</html>

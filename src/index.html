@@ -97,7 +97,7 @@
 
             // Add trip content to the box
             box.innerHTML = `
-            <h2 class="fancy">${trip.name}</h2>
+            <h2 class="fancy"><a href="/view.html?id=${trip.id}">${trip.name}</a></h2>
             <p>${trip.description}</p>
             <img src="${trip.pictureUrl}" alt="${trip.name}" />
           `;

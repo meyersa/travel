@@ -2,7 +2,7 @@
 
 :root {
   --white: #e9f5f8;
-  --light-purple: #EEEFFC;
+  --light-purple: #eeeffc;
   --purple: #bfc4f5;
   --dark-purple: #a2a9d1;
   --light-blue: #95e5f8;
@@ -19,7 +19,6 @@
   background-color: var(--light-blue);
   padding: var(--space);
   border-radius: var(--space);
-
 }
 
 html {
@@ -41,19 +40,16 @@ h1,
 h2,
 h3 {
   font-family: "Overpass", serif;
-
 }
 
 h1 {
-    size: 2rem;
-
+  size: 2rem;
 }
 
 .fancy {
   font-family: "Bebas Neue", serif;
   font-weight: bolder;
   color: var(--dark-blue);
-
 }
 
 p {
@@ -61,8 +57,8 @@ p {
 }
 
 i {
-    color: var(--dark-grey);
-    font-size: 1.5rem;
+  color: var(--dark-grey);
+  font-size: 1.5rem;
 }
 header,
 .left,
@@ -71,12 +67,15 @@ header,
   flex-direction: row;
   align-items: center;
   gap: var(--space);
-
 }
 
-header, .left, .right a {
+a {
   color: unset;
-  
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 header {
@@ -94,67 +93,62 @@ body {
   height: 5px;
   width: 10%;
   background-color: var(--dark-purple);
-    margin-bottom: calc(var(--space) * 2);
+  margin-bottom: calc(var(--space) * 2);
 }
 
 .box {
-    box-shadow: 0px 6px 15px 2px rgb(143 143 143 / 20%);
-    max-height: 50vh;
-    margin: 0 auto;
-    background-color: var(--light-purple);
-    padding: var(--space);
-    width: fit-content;
-    border-radius: calc(var(--space) / 2);
-
+  box-shadow: 0px 6px 15px 2px rgb(143 143 143 / 20%);
+  max-height: 50vh;
+  margin: 0 auto;
+  background-color: var(--light-purple);
+  padding: var(--space);
+  width: fit-content;
+  border-radius: calc(var(--space) / 2);
 }
 
 .box p {
-    max-height: 10vh;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    
+  max-height: 10vh;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .box img {
-    aspect-ratio: 16/9;
-    max-height: 30vh;
-    border-radius: calc(var(--space) / 2);
-
+  aspect-ratio: 16/9;
+  max-height: 30vh;
+  border-radius: calc(var(--space) / 2);
 }
 
 .attention {
-    display: flex;
-    flex-direction: column;
-    margin: auto;
-    padding: var(--space);
-    width: calc(100% - 2 * var(--space));
-    max-width: 1000px;
-    height: 60vh;
-    border-radius: var(--space);
-    position: relative;
-    overflow: hidden;
-    justify-content: center;
-    align-items: center;
-
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  padding: var(--space);
+  width: calc(100% - 2 * var(--space));
+  max-width: 1000px;
+  height: 60vh;
+  border-radius: var(--space);
+  position: relative;
+  overflow: hidden;
+  justify-content: center;
+  align-items: center;
 }
 
 .attention::after {
-    content: "";
-    position:absolute;
-    height: 100%;
-    width: 100%;
-    background-image: url("/demo.gif");
-    z-index: -10;
-    background-size: cover;
-    background-position: center;
-    opacity: 0.35;
-    filter: brightness(1.65);
-
+  content: "";
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  background-image: url("/demo.gif");
+  z-index: -10;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.35;
+  filter: brightness(1.65);
 }
 
 footer {
-    display: flex; 
-    flex-direction: row;
-    gap: var(--space);
-    justify-content: center;
+  display: flex;
+  flex-direction: row;
+  gap: var(--space);
+  justify-content: center;
 }

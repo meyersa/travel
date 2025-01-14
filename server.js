@@ -23,27 +23,27 @@ app.get("/trips", async (req, res) => {
     // Return all trips (Just one for now) 
     return res.json([
         {
+            "id": jsonData["id"],
             "name": jsonData["name"],
             "startDate": jsonData["startDate"],
             "description": jsonData["description"],
             "pictureUrl": jsonData["pictureUrl"]
-
     }])
 })
 
 app.get("/trip", async (req, res) => {
-    const { tripname } = req.query;
-    console.log("Get request received for /trip for ", tripname)
+    const { id } = req.query;
+    console.log("Get request received for /trip for ", id)
 
-    if (!tripname) {
+    if (!id) {
         return res.status(400).send("tripname is required");
 
     }
 
-    cleanTripname = String(tripname.split(".")[0]).toLowerCase().trim()
+    cleanId = String(id).toLowerCase().trim()
 
     // Validate trip name against trips - UNFINISHED
-    if (cleanTripname != "example") {
+    if (cleanId != "asdlkfjasdflkjasdf") {
         return res.status(400).send("tripname is not valid");
 
     }
