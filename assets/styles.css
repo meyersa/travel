@@ -134,8 +134,21 @@ content {
 }
 
 footer {
+  display: flex; 
+  flex-direction: column;
+  align-items: center;
+
+}
+
+footer > p {
+  font-size: .9rem;
+
+}
+
+footer > div {
   display: flex;
   flex-direction: row;
   gap: var(--space);
   justify-content: center;
+  
 }
