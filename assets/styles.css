@@ -95,7 +95,7 @@ content {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--space);
   box-sizing: border-box;
   margin: var(--space) 0;
