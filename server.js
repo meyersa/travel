@@ -1,41 +1,76 @@
 const express = require("express");
 const fs = require("fs");
 const path = require("path");
+const { MongoClient } = require("mongodb");
+
+require("dotenv").config();
 
 const app = express();
+
+// Setup Mongo Connection
+const { MONGO_URL, MONGO_DB } = process.env;
+const options = {
+  serverSelectionTimeoutMS: 10000,
+};
+
+let tripsDB;
+(async () => {
+  try {
+    // Connect to MongoDB
+    console.log("Connecting to MongoDB...");
+    const client = await MongoClient.connect(MONGO_URL, options);
+    console.log("Connected to MongoDB");
+
+    // Connect to specified DB
+    console.log("Connecting to specified database");
+    const db = client.db(MONGO_DB);
+
+    console.log("Connecting to specified collection");
+    tripsDB = db.collection("trips");
+
+    console.log("Mongo is ready...");
+  } catch (e) {
+    console.error("Unable to connect to MongoDB, ignore if this was during initial build", e);
+    process.exit(1);
+  }
+
+  console.log(`Startup finished \n\n\n`);
+})();
+
+// Setup template engine, view (template) dir, and asset route
 app.set("view engine", "ejs");
-
-// Set the views directory
 app.set("views", path.join(__dirname, "views"));
-
-// Serve static paths, setting up for API use
 app.use(express.static(path.join(__dirname, "assets")));
 
-// Temporarily read in from JSON
-jsonFile = "/Users/augustmeyers/Coding/travel/example.json";
-function readData(file) {
-  var jsonData = fs.readFileSync(file);
-  return JSON.parse(jsonData);
-}
-
-// List all trips (Unfinished)
+// List all trips
 app.get("/trips", async (req, res) => {
-  console.log("Get request received for /trips - UNFINISHED");
+  console.log("Get request received for /trips");
 
-  jsonData = readData(jsonFile);
+  if (!tripsDB) {
+    throw new Error("MongoDB connection not established");
+  }
+
+  const jsonData = await tripsDB
+    .find(
+      {},
+      {
+        projection: {
+          id: 1,
+          name: 1,
+          startDate: 1,
+          description: 1,
+          pictureUrl: 1,
+          _id: 0,
+        },
+      }
+    )
+    .toArray();
 
   // Return all trips (Just one for now)
-  return res.json([
-    {
-      id: jsonData["id"],
-      name: jsonData["name"],
-      startDate: jsonData["startDate"],
-      description: jsonData["description"],
-      pictureUrl: jsonData["pictureUrl"],
-    },
-  ]);
+  return res.json(jsonData);
 });
 
+// Get specific trip page
 app.get("/trip", async (req, res) => {
   const { id } = req.query;
 
@@ -45,12 +80,15 @@ app.get("/trip", async (req, res) => {
 
   const cleanId = String(id).toLowerCase().trim();
 
-  jsonData = readData(jsonFile);
+  const jsonData = await tripsDB.findOne({
+    id: cleanId,
+  });
 
   // Render the template with trip data
   res.render("trip", { trip: jsonData });
 });
 
+// Get home page
 app.get("/", async (req, res) => {
   res.render("index");
 });
