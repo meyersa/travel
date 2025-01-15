@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>New Trip</title>
+    <%- include('partials/head') %>
+  </head>
+  <body>
+    <%- include('partials/header') %>
+    <content>
+        <form id="tripForm">
+            <h1>New Trip</h1>
+            <div>
+              <label for="where">Where</label>
+              <input
+                type="text"
+                id="where"
+                name="where"
+                placeholder="Where do you want to go?"
+                required
+              />
+            </div>
+            <div>
+              <label for="when">When</label>
+              <input
+                type="text"
+                id="when"
+                name="when"
+                placeholder="When do you want to go?"
+                required
+              />
+            </div>
+            <div>
+              <label for="description">Description</label>
+              <textarea
+                id="description"
+                name="description"
+                placeholder="What do you want to see?"
+                required
+              ></textarea>
+            </div>
+            <button type="submit">Submit</button>
+          </form>
+    </content>
+    <%- include('partials/footer') %>
+  </body>
+  <style>
+    #tripForm {
+        width: 50vw;
+        box-shadow: var(--boxshadow);
+        padding: var(--space);
+        border-radius: var(--space);
+        display: flex; 
+        flex-direction: column;
+        gap: var(--space);
+    }
+    #tripForm > div {
+        display: flex; 
+        flex-direction: row;
+        align-items: baseline;
+    }
+    input,
+    textarea {
+        padding: calc(var(--space) / 2);
+        border-radius: calc(var(--space) / 2);
+        margin: calc(var(--space) / 2);
+        background-color: var(--light-purple);   
+
+    }
+    button {
+        background-color: var(--light-blue);
+        padding: calc(var(--space) / 2);
+        border-radius: var(--space);
+
+    }
+    button:hover {
+        background-color: var(--blue);
+    }
+  </style>
+</html>

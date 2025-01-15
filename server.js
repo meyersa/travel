@@ -60,6 +60,10 @@ app.get("/trip", async (req, res) => {
   res.render("trip", { trip: jsonData });
 });
 
+app.get("/new", async (req, res) => {
+  res.render("new")
+})
+
 // Get home page
 app.get("/", async (req, res) => {
   if (!tripsDB) {
