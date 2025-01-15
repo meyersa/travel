@@ -1,9 +1,12 @@
-const express = require("express");
-const path = require("path");
-const { MongoClient } = require("mongodb");
-const NodeCache = require("node-cache");
+import express from "express";
+import path from "path";
+import { fileURLToPath } from 'url';
+import { MongoClient } from "mongodb";
+import NodeCache from "node-cache";
+import { validateTrip } from "./lib/validateTrip.js";
 
-require("dotenv").config();
+import { configDotenv } from "dotenv";
+configDotenv()
 
 const app = express();
 const cache = new NodeCache();
@@ -40,8 +43,8 @@ let tripsDB;
 
 // Setup template engine, view (template) dir, and asset route
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
-app.use(express.static(path.join(__dirname, "assets")));
+app.set("views", path.join(path.dirname(fileURLToPath(import.meta.url)), "views"));
+app.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), "assets")));
 
 // Get specific trip page
 app.get("/trip", async (req, res) => {
@@ -88,14 +91,29 @@ app.get("/new", async (req, res) => {
 // Create trip endpoint
 // app.post("/new", )
 
-
-
 // Add trip endpoint
 app.post("/add", async (req, res) => {
-  const tripJSON = req.body; 
+  const tripJSON = req.body;
 
-  console.log("")
-})
+  // Try to validate the JSON
+  try {
+    await validateTrip(tripJSON);
+  } catch (err) {
+    return res.status(400).send("Trip JSON failed validation", err);
+  }
+
+  if (!tripsDB) {
+    return res.status(503).send("Service unavailable");
+  }
+
+  const result = await tripsDB.insertOne(jsonData);
+
+  if (result.acknowledged) {
+    return res.status(200);
+  }
+
+  return res.status(400).send("Unable to insert document", err);
+});
 
 // Get home page
 app.get("/", async (req, res) => {
