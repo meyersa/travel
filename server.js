@@ -60,8 +60,21 @@ app.get("/trip", async (req, res) => {
   res.render("trip", { trip: jsonData });
 });
 
+// Create trip GUI
 app.get("/new", async (req, res) => {
   res.render("new")
+})
+
+// Create trip endpoint
+// app.post("/new", )
+
+
+
+// Add trip endpoint
+app.post("/add", async (req, res) => {
+  const tripJSON = req.body; 
+
+  console.log("")
 })
 
 // Get home page
