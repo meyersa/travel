@@ -45,6 +45,7 @@ let tripsDB;
 app.set("view engine", "ejs");
 app.set("views", path.join(path.dirname(fileURLToPath(import.meta.url)), "views"));
 app.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), "assets")));
+app.use(express.json())
 
 // Get specific trip page
 app.get("/trip", async (req, res) => {
@@ -93,23 +94,56 @@ app.get("/new", async (req, res) => {
 
 // Add trip endpoint
 app.post("/add", async (req, res) => {
+  console.log("Received request to add trip")
+  
   const tripJSON = req.body;
 
   // Try to validate the JSON
   try {
+    console.log("Validating trip...")
     await validateTrip(tripJSON);
+
   } catch (err) {
-    return res.status(400).send("Trip JSON failed validation", err);
+    console.error(err)
+    return res.status(400).send("Trip JSON failed validation");
+  
   }
 
   if (!tripsDB) {
     return res.status(503).send("Service unavailable");
   }
 
-  const result = await tripsDB.insertOne(jsonData);
+  // Check for duplicates
+  try {
+    console.log("Checking Mongo for duplicate trips...") 
+    let result = await tripsDB.findOne({ id: tripJSON.id})
+
+    if (!!result) {
+      throw new Error() 
+
+    }
+
+  } catch (err) {
+    console.error("Found a duplicate trip ID")
+    return res.status(400).send("Trip name already exists");
+
+  }
+
+  var result; 
+  try {
+    console.log("Inserting trip into Mongo...")
+    result = await tripsDB.insertOne(tripJSON);
+  
+  } catch (err) {
+    console.error("Failed to upload document to Mongo", err)
+    return res.status(503).send("Service unavailable");
+
+  }
+
+  console.log("Uploaded trip to Mongo")
 
   if (result.acknowledged) {
-    return res.status(200);
+    return res.status(200).send("Success");
   }
 
   return res.status(400).send("Unable to insert document", err);
