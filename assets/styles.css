@@ -114,6 +114,12 @@ content {
   max-width: 400px;
   border-radius: calc(var(--space) / 2);
   box-sizing: border-box;
+  overflow: scroll;
+}
+
+.box * {
+  margin: calc(var(--space) / 2) 0;
+
 }
 
 .box p {
