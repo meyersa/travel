@@ -2,7 +2,38 @@
   <div class="right">
     <h2><a href="/">trip planner</a></h2>
   </div>
-  <div class="left">
+  <div class="left" onclick="newPage()">
     <i class="fa-solid fa-plus"></i>
   </div>
+  <script>
+    function newPage() { window.location.href = "/new"; }
+  </script>
+  <style>
+    header {
+      justify-content: space-between;
+
+    }
+
+    header,
+    .left,
+    .right {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: var(--space);
+    }
+
+    .left {
+      background-color: var(--light-blue);
+      padding: var(--space);
+      border-radius: var(--space);
+      box-shadow: var(--boxshadow);
+
+    }
+
+    .left:hover {
+      cursor: pointer;
+      background-color: var(--blue);
+    }
+  </style>
 </header>
