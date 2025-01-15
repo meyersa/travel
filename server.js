@@ -52,8 +52,7 @@ app.get("/trip", async (req, res) => {
   }
 
   if (!tripsDB) {
-    throw new Error("MongoDB connection not established");
-    
+    return res.status(503).send("Service unavailable");
   }
 
   const cleanId = String(id).toLowerCase().trim();
@@ -88,7 +87,7 @@ app.get("/new", async (req, res) => {
 // Get home page
 app.get("/", async (req, res) => {
   if (!tripsDB) {
-    throw new Error("MongoDB connection not established");
+    return res.status(503).send("Service unavailable");
   }
 
   var jsonData = cache.get("trips");
