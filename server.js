@@ -1,11 +1,12 @@
 const express = require("express");
-const fs = require("fs");
 const path = require("path");
 const { MongoClient } = require("mongodb");
+const NodeCache = require("node-cache");
 
 require("dotenv").config();
 
 const app = express();
+const cache = new NodeCache();
 
 // Setup Mongo Connection
 const { MONGO_URL, MONGO_DB } = process.env;
@@ -50,19 +51,39 @@ app.get("/trip", async (req, res) => {
     return res.status(400).send("Trip ID is required");
   }
 
+  if (!tripsDB) {
+    throw new Error("MongoDB connection not established");
+    
+  }
+
   const cleanId = String(id).toLowerCase().trim();
 
-  const jsonData = await tripsDB.findOne({
-    id: cleanId,
-  });
+  var jsonData = cache.get(cleanId);
+
+  // Try cache
+  if (!jsonData) {
+    console.log(`Cache miss for ${cleanId}`);
+
+    try {
+      jsonData = await tripsDB.findOne({
+        id: cleanId,
+      });
+    } catch (err) {
+      console.error("Error retrieving trips:", err);
+      res.status(500).send("<p>Internal Server Error</p>");
+    }
+    cache.set(cleanId, jsonData, 3600);
+  } else {
+    console.log(`Cache hit for ${cleanId}`);
+  }
 
   // Render the template with trip data
   res.render("trip", { trip: jsonData });
 });
 
 app.get("/new", async (req, res) => {
-  res.render("new")
-})
+  res.render("new");
+});
 
 // Get home page
 app.get("/", async (req, res) => {
@@ -70,23 +91,38 @@ app.get("/", async (req, res) => {
     throw new Error("MongoDB connection not established");
   }
 
-  const jsonData = await tripsDB
-    .find(
-      {},
-      {
-        projection: {
-          id: 1,
-          name: 1,
-          startDate: 1,
-          description: 1,
-          pictureUrl: 1,
-          _id: 0,
-        },
-      }
-    )
-    .toArray();
+  var jsonData = cache.get("trips");
 
-  res.render("index", {trips: jsonData});
+  if (!jsonData) {
+    console.log(`Cache miss for trips`);
+
+    try {
+      jsonData = await tripsDB
+        .find(
+          {},
+          {
+            projection: {
+              id: 1,
+              name: 1,
+              startDate: 1,
+              description: 1,
+              pictureUrl: 1,
+              _id: 0,
+            },
+          }
+        )
+        .toArray();
+    } catch (err) {
+      console.error("Error retrieving trips:", err);
+      res.status(500).send("<p>Internal Server Error</p>");
+    }
+
+    cache.set("trips", jsonData, 3600);
+  } else {
+    console.log(`Cache hit for trips`);
+  }
+
+  res.render("index", { trips: jsonData });
 });
 
 const PORT = process.env.PORT || 3000;
