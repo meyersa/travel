@@ -52,6 +52,11 @@ i {
   font-size: 1.5rem;
 }
 
+a > i:hover {
+  color: var(--blue)
+
+}
+
 a {
   color: unset;
   text-decoration: none;
