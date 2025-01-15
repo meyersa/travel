@@ -1,80 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>trip planner</title>
-    <%- include('partials/head') %>
-  </head>
-  <body>
-    <%- include('partials/header') %>
+
+<head>
+  <title>trip planner</title>
+  <%- include('partials/head') %>
+</head>
+
+<body>
+  <%- include('partials/header') %>
     <content>
-      <%- include('partials/attention', {title: "let ai do the work while you travel", pictureUrl: "/demo.gif"}) %>
-      <div>
-        <h2>itineraries</h2>
-        <div class="spacer"></div>
-        <div id="itineraries">
-          <div class="box">
-            <h2 class="fancy">Your destination</h2>
-            <p>Where do you want to go?</p>
-            <img src="/placeholder.webp" alt="Placeholder tropical image" />
+      <%- include('partials/attention', {title: "let ai do the work while you travel" , pictureUrl: "/demo.gif" }) %>
+        <div>
+          <h2>itineraries</h2>
+          <div class="spacer"></div>
+          <div id="itineraries">
+            <div class="boxwrapper">
+              <% trips.forEach(trip=> { %>
+                <div class="box">
+                  <h2 class="fancy">
+                    <%= trip.name %>
+                  </h2>
+                  <p>
+                    <%= trip.description %>
+                  </p>
+                  <img src="<%= trip.pictureUrl %>" alt="<%= trip.name %>" />
+                </div>
+                <% }) %>
+            </div>
           </div>
         </div>
-      </div>
-      <div>
-        <h2>behind the scenes</h2>
-        <div class="spacer"></div>
-        <p>First you enter the important information</p>
-        <p></p>
-        <p><span class="fancy">where</span> you want to go</p>
-        <p><span class="fancy">when</span> you want to go</p>
-        <p><span class="fancy">what</span> you want to do</p>
-        <p>
-          Then like magic, chatGPT will determine the optimal places based off of too many factors to count, and provide
-          you with a custom itinerary
-        </p>
-      </div>
+        <div>
+          <h2>behind the scenes</h2>
+          <div class="spacer"></div>
+          <p>First you enter the important information</p>
+          <div class="boxwrap" style="flex-direction: column">
+            <div class="box">
+              <h2><span class="fancy">where</span> <i class="fa-solid fa-location-dot"></i></h2>
+              <p>This can be as generic as "somewhere warm" and ChatGPT will find somewhere that suits your needs. For
+                example:</p>
+              <ul>
+                <li>Tanzania</li>
+                <li>Somewhere warm</li>
+                <li>A short flight from New York</li>
+              </ul>
+            </div>
+            <div class="box">
+              <h2><span class="fancy">when</span> <i class="fa-solid fa-clock"></i></h2>
+              <p>The timeframe for the trip, useful for deciding which things are most important and what's in season.
+              </p>
+            </div>
+            <div class="box">
+              <h2><span class="fancy">what</span> <i class="fa-solid fa-question"></i></h2>
+              <p>The most generic of the inputs - a description of what you want to do. From seeing one of the 7 wonders
+                of the world, to exploring a rainforest, to exploring city nightlife.</p>
+            </div>
+          </div>
+          <p>
+            Then like magic, ChatGPT will determine the optimal places based off of too many factors to count, and
+            provide
+            you with a custom itinerary
+          </p>
+        </div>
     </content>
     <%- include('partials/footer') %>
-    <script>
-      // Function to load trips and populate the #itineraries div
-      async function loadTrips() {
-        try {
-          // Fetch trips from the API endpoint
-          const response = await fetch("/trips");
-          if (!response.ok) {
-            throw new Error("Failed to fetch trips");
-          }
-          const trips = await response.json();
+</body>
 
-          // Sort trips by startDate in descending order (newest first)
-          trips.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
-
-          // Select and clear the #itineraries div
-          const itinerariesDiv = document.getElementById("itineraries");
-          itinerariesDiv.innerHTML = ""; // Clear existing content
-
-          // Populate with new trip boxes
-          trips.forEach((trip) => {
-            // Create box container
-            const box = document.createElement("div");
-            box.classList.add("box");
-
-            // Add trip content to the box
-            box.innerHTML = `
-            <h2 class="fancy"><a href="/trip?id=${trip.id}">${trip.name}</a></h2>
-            <p>${trip.description}</p>
-            <img src="${trip.pictureUrl}" alt="${trip.name}" />
-          `;
-
-            // Append the box to the itineraries div
-            itinerariesDiv.appendChild(box);
-          });
-        } catch (error) {
-          console.error("Error loading trips:", error);
-        }
-      }
-
-      // Load trips when the page is ready
-      document.addEventListener("DOMContentLoaded", loadTrips);
-    </script>
-  </body>
 </html>

@@ -42,34 +42,6 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "assets")));
 
-// List all trips
-app.get("/trips", async (req, res) => {
-  console.log("Get request received for /trips");
-
-  if (!tripsDB) {
-    throw new Error("MongoDB connection not established");
-  }
-
-  const jsonData = await tripsDB
-    .find(
-      {},
-      {
-        projection: {
-          id: 1,
-          name: 1,
-          startDate: 1,
-          description: 1,
-          pictureUrl: 1,
-          _id: 0,
-        },
-      }
-    )
-    .toArray();
-
-  // Return all trips (Just one for now)
-  return res.json(jsonData);
-});
-
 // Get specific trip page
 app.get("/trip", async (req, res) => {
   const { id } = req.query;
@@ -90,7 +62,27 @@ app.get("/trip", async (req, res) => {
 
 // Get home page
 app.get("/", async (req, res) => {
-  res.render("index");
+  if (!tripsDB) {
+    throw new Error("MongoDB connection not established");
+  }
+
+  const jsonData = await tripsDB
+    .find(
+      {},
+      {
+        projection: {
+          id: 1,
+          name: 1,
+          startDate: 1,
+          description: 1,
+          pictureUrl: 1,
+          _id: 0,
+        },
+      }
+    )
+    .toArray();
+
+  res.render("index", {trips: jsonData});
 });
 
 const PORT = process.env.PORT || 3000;
