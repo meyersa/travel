@@ -174,7 +174,7 @@ app.get("/", async (req, res) => {
               name: 1,
               startDate: 1,
               description: 1,
-              pictureUrl: 1,
+              picture: 1,
               _id: 0,
             },
           }

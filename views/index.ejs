@@ -25,7 +25,10 @@
                       <%= trip.description %>
                     </p>
                   </div>
-                  <img src="<%= trip.pictureUrl %>" alt="<%= trip.name %>" />
+                  <div>
+                    <img src="<%= trip.picture.pictureUrl %>" alt="<%= trip.name %>" />
+                    <small><%= trip.picture.source %></small>
+                  </div>
                 </div>
                 <% }) %>
             </div>
