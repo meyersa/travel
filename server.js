@@ -48,87 +48,141 @@ app.set("views", path.join(path.dirname(fileURLToPath(import.meta.url)), "views"
 app.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), "assets")));
 app.use(express.json());
 
-// Get specific trip page
-app.get("/trip", async (req, res) => {
-  const { id } = req.query;
+// Tries to pull a value from cache or uses a function to set it
+async function tryCacheOrSet(name, valueFunction, cacheLength = 3600) {
+  const cleanName = String(name).toLowerCase().trim();
+  // Standardize all names with lowercase, might cause issues if there are dups
 
-  if (!id) {
-    return res.status(400).send("Trip ID is required");
+  var cacheRes = await cache.get(cleanName);
+
+  if (cacheRes) {
+    console.log(`Cache hit for ${cleanName}`);
+    return cacheRes;
   }
 
+  console.log(`Cache miss for ${cleanName}`);
+
+  var newRes = await valueFunction();
+
+  if (!newRes) {
+    throw new Error("Value is empty after filling");
+  }
+
+  cache.set(cleanName, newRes, cacheLength);
+  console.log(`Cache set for ${cleanName}`);
+  return newRes;
+}
+
+// Get a trip ID (Wrapper for Mongo func)
+async function getTrip(id) {
+  console.log(`Getting trip information for ${id}`);
+  if (!tripsDB) {
+    throw new Error("Mongo not set");
+  }
+
+  return await tripsDB.findOne({
+    id: id,
+  });
+}
+
+// Basic log for information, can add more  with more headers
+function preFlightLog(req) {
+  let output = `Received request on ${req.path}`
+
+  if (req.query) {
+    output += `, with queries ${JSON.stringify(req.query)}`
+
+  }
+
+  if (req.body.length > 1) {
+    output += `, and a body`
+  }
+
+  console.log(output)
+}
+
+// Clean and verify an input
+function cleanAndVerify(value, minLength = 5, maxLength = 300) {
+  if (!value) {
+    throw new Error("Input value is invalid");
+  }
+
+  value = String(value).trim();
+  if (value.length < minLength || value.length > maxLength) {
+    throw new Error("Input value is not the correct length");
+  }
+
+  return value;
+}
+
+async function getTrips() {
+  console.log("Getting trips from Mongo");
   if (!tripsDB) {
     return res.status(503).send("Service unavailable");
   }
 
-  const cleanId = String(id).toLowerCase().trim();
+  return await tripsDB
+    .find(
+      {},
+      {
+        projection: {
+          id: 1,
+          name: 1,
+          startDate: 1,
+          description: 1,
+          picture: 1,
+          _id: 0,
+        },
+      }
+    )
+    .toArray();
+}
 
-  var jsonData = cache.get(cleanId);
+// Get specific trip page
+app.get("/trip", async (req, res) => {
+  preFlightLog(req);
 
-  // Try cache
-  if (!jsonData) {
-    console.log(`Cache miss for ${cleanId}`);
-
-    try {
-      jsonData = await tripsDB.findOne({
-        id: cleanId,
-      });
-    } catch (err) {
-      console.error("Error retrieving trips:", err);
-      res.status(500).send("Internal Server Error");
-    }
-    cache.set(cleanId, jsonData, 3600);
-  } else {
-    console.log(`Cache hit for ${cleanId}`);
+  const { id } = req.query;
+  if (!id) {
+    return res.status(400).send("Trip ID is required");
   }
 
-  // Render the template with trip data
-  res.render("trip", { trip: jsonData });
-});
-
-// Create trip GUI
-app.get("/new", async (req, res) => {
-  res.render("new");
+  try {
+    // Render template with trip data
+    res.render("trip", { trip: await tryCacheOrSet(id, () => getTrip(id)) });
+  } catch (err) {
+    console.error("Failed to get Trip information", err);
+    return res.status(503).send("Service unavailable");
+  }
 });
 
 // Create trip endpoint
 app.post("/new", async (req, res) => {
-  console.log("Received request on post /new");
+  preFlightLog(req);
 
+  // Get form data from the req body
   var formResp = req.body;
-
   let where, when, desc;
   try {
-    where = String(formResp["where"]).trim();
-    if (!where || where.length > 300) {
-      return res.status(400).send("`Where` is invalid");
-    }
-
-    when = String(formResp["when"]).trim();
-    if (!when || when.length > 300) {
-      return res.status(400).send("`When` is invalid");
-    }
-
-    desc = String(formResp["description"]).trim();
-    if (!desc || desc.length > 300) {
-      return res.status(400).send("`Description` is invalid");
-    }
+    where = cleanAndVerify(formResp["where"]);
+    when = cleanAndVerify(formResp["when"]);
+    desc = cleanAndVerify(formResp["desc"]);
   } catch (err) {
     console.error("Could not process /new input", err);
-    res.status(500).send("Internal Server Error");
+    res.status(400).send("Invalid response to form");
   }
 
+  console.log(`Received trip request for\nWhere: ${where}\nWhen: ${when}\nDescription: ${desc}\n`);
   res.status(200).send("Success");
 });
 
 // Add trip endpoint
 app.post("/add", async (req, res) => {
-  console.log("Received request to add trip");
-
-  var tripJSON = req.body;
+  preFlightLog(req);
 
   // Try to validate the JSON
+  var tripJSON = req.body;
   try {
-    console.log("Validating trip...");
     await validateTrip(tripJSON);
   } catch (err) {
     console.error(err);
@@ -155,68 +209,46 @@ app.post("/add", async (req, res) => {
     return res.status(400).send("Trip name already exists");
   }
 
+  // Insert result if not dup
   var result;
   try {
     console.log("Inserting trip into Mongo...");
     result = await tripsDB.insertOne(tripJSON);
+
+    if (!result.acknowledged) {
+      throw new Error("Result not acknowledged");
+    }
+
+    console.log("Uploaded trip to Mongo");
+    return res.status(200).send("Success");
   } catch (err) {
     console.error("Failed to upload document to Mongo", err);
     return res.status(503).send("Service unavailable");
   }
-
-  console.log("Uploaded trip to Mongo");
-
-  if (result.acknowledged) {
-    return res.status(200).send("Success");
-  }
-
-  return res.status(400).send("Unable to insert document", err);
 });
-
-app.get("/success", async (req, res) => {
-  res.render("success", {}
-
-  )
-})
 
 // Get home page
 app.get("/", async (req, res) => {
-  if (!tripsDB) {
+  preFlightLog(req);
+
+  try {
+    res.render("index", { trips: await tryCacheOrSet("trips", () => getTrips()) });
+  } catch (err) {
+    console.error("Error retrieving trips:", err);
     return res.status(503).send("Service unavailable");
   }
+});
 
-  var jsonData = cache.get("trips");
+// Success page
+app.get("/success", async (req, res) => {
+  preFlightLog(req);
+  res.render("success", {});
+});
 
-  if (!jsonData) {
-    console.log(`Cache miss for trips`);
-
-    try {
-      jsonData = await tripsDB
-        .find(
-          {},
-          {
-            projection: {
-              id: 1,
-              name: 1,
-              startDate: 1,
-              description: 1,
-              picture: 1,
-              _id: 0,
-            },
-          }
-        )
-        .toArray();
-    } catch (err) {
-      console.error("Error retrieving trips:", err);
-      res.status(500).send("<p>Internal Server Error</p>");
-    }
-
-    cache.set("trips", jsonData, 3600);
-  } else {
-    console.log(`Cache hit for trips`);
-  }
-
-  res.render("index", { trips: jsonData });
+// Create trip GUI
+app.get("/new", async (req, res) => {
+  preFlightLog(req);
+  res.render("new");
 });
 
 const PORT = process.env.PORT || 3000;
