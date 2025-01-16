@@ -4,15 +4,16 @@ import { fileURLToPath } from 'url';
 import { MongoClient } from "mongodb";
 import NodeCache from "node-cache";
 import { validateTrip } from "./lib/validateTrip.js";
-
+import { populateImages } from "./lib/populateImages.js";
 import { configDotenv } from "dotenv";
 configDotenv()
 
 const app = express();
 const cache = new NodeCache();
 
+const { MONGO_URL, MONGO_DB, GOOGLE_CONSOLE_ID, GOOGLE_API_KEY } = process.env;
+
 // Setup Mongo Connection
-const { MONGO_URL, MONGO_DB } = process.env;
 const options = {
   serverSelectionTimeoutMS: 10000,
 };
@@ -96,7 +97,7 @@ app.get("/new", async (req, res) => {
 app.post("/add", async (req, res) => {
   console.log("Received request to add trip")
   
-  const tripJSON = req.body;
+  var tripJSON = req.body;
 
   // Try to validate the JSON
   try {
@@ -108,6 +109,9 @@ app.post("/add", async (req, res) => {
     return res.status(400).send("Trip JSON failed validation");
   
   }
+
+  // Populate Images 
+  tripJSON = await populateImages(GOOGLE_CONSOLE_ID, GOOGLE_API_KEY, tripJSON) 
 
   if (!tripsDB) {
     return res.status(503).send("Service unavailable");
