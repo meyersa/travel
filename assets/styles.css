@@ -100,7 +100,7 @@ content {
   flex-direction: row;
   flex-wrap: wrap;
   justify-content: flex-start;
-  gap: var(--space);
+  gap: calc(var(--space) * 2);
   box-sizing: border-box;
   margin: var(--space) 0;
   padding: var(--space);
@@ -109,21 +109,25 @@ content {
 .box {
   box-shadow: var(--boxshadow);
   max-height: 50vh;
+  min-height: 30vh;
   padding: var(--space);
   width: 100%;
   max-width: 400px;
   border-radius: calc(var(--space) / 2);
   box-sizing: border-box;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .box * {
-  margin: calc(var(--space) / 2) 0;
+  margin: calc(var(--space) / 4) 0;
 
 }
 
 .box p {
-  max-height: 10vh;
+  /* max-height: 10vh; */
   overflow: hidden;
   text-overflow: ellipsis;
 }

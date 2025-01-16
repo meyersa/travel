@@ -1,59 +1,83 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title><%= trip.name %> - Trip Planner</title>
-    <%- include('partials/head') %>
-  </head>
-  <body>
-    <%- include('partials/header') %>
+
+<head>
+  <title>
+    <%= trip.name %> - Trip Planner
+  </title>
+  <%- include('partials/head') %>
+</head>
+
+<body>
+  <%- include('partials/header') %>
     <content>
       <!-- Main Trip Banner Section -->
       <%- include('partials/attention', {title: trip.name, pictureUrl: trip.pictureUrl}) %>
 
-      <!-- Loop through each day in the trip -->
-      <% trip.days.forEach(day => { %>
-      <section class="day-section">
-        <h2><%= day.name %> (<%= day.date %>)</h2>
-        <div class="spacer"></div>
-        <p><%= day.description %></p>
+        <!-- Loop through each day in the trip -->
+        <% trip.days.forEach(day=> { %>
+          <section class="day-section">
+            <h2>
+              <%= day.name %> (<%= day.date %>)
+            </h2>
+            <div class="spacer"></div>
+            <p>
+              <%= day.description %>
+            </p>
 
-        <!-- Timeline for the day -->
-        <div class="boxwrap">
-          <% day.stops.forEach(stop => { %>
-          <div class="box">
-            <h3><%= stop.startTime %> - <%= stop.endTime %></h3>
-            <h2><span class="fancy"><%= stop.name %></span></h2>
-            <p><%= stop.description %></p>
-            <% if (stop && stop.pictureUrl) { %>
-            <img src="<%= stop.pictureUrl %>" alt="<%= stop.name %>" />
-            <% } %>
-          </div>
+            <!-- Timeline for the day -->
+            <div class="boxwrap">
+              <% day.stops.forEach(stop=> { %>
+                <div class="box">
+                  <div>
+                    <h3>
+                      <%= stop.startTime %> - <%= stop.endTime %>
+                    </h3>
+                    <h2><span class="fancy">
+                        <%= stop.name %>
+                      </span></h2>
+                    <p>
+                      <%= stop.description %>
+                    </p>
+                  </div>
+                  <% if (stop && stop.pictureUrl) { %>
+                    <img src="<%= stop.pictureUrl %>" alt="<%= stop.name %>" />
+                    <% } %>
+                </div>
+                <% }) %>
+            </div>
+          </section>
           <% }) %>
-        </div>
-      </section>
-      <% }) %>
 
-      <!-- Additional Information Section -->
-      <section>
-        <h2>Additional Information</h2>
-        <div class="spacer"></div>
-        <div class="boxwrap">
-          <% trip.additional.forEach(add => { %>
-          <div class="box">
-            <h2><span class="fancy"><%= add.title %></span></h2>
-            <% if (add && add.pictureUrl) { %>
-            <img src="<%= add.pictureUrl %>" alt="<%= add.title %>" />
-            <% } %>
-            <ul>
-              <% add.points.forEach(point => { %>
-              <li><%= point %></li>
-              <% }) %>
-            </ul>
-          </div>
-          <% }) %>
-        </div>
-      </section>
+            <!-- Additional Information Section -->
+            <section>
+              <h2>Additional Information</h2>
+              <div class="spacer"></div>
+              <div class="boxwrap">
+                <% trip.additional.forEach(add=> { %>
+                  <div class="box">
+                    <div>
+                      <h2><span class="fancy">
+                          <%= add.title %>
+                        </span></h2>
+                        <ul>
+                          <% add.points.forEach(point=> { %>
+                            <li>
+                              <%= point %>
+                            </li>
+                            <% }) %>
+                        </ul>
+                    </div>
+                    <% if (add && add.pictureUrl) { %>
+                      <img src="<%= add.pictureUrl %>" alt="<%= add.title %>" />
+                      <% } %>
+
+                  </div>
+                  <% }) %>
+              </div>
+            </section>
     </content>
     <%- include('partials/footer') %>
-  </body>
+</body>
+
 </html>
