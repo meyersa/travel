@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>New Trip</title>
+  <%- include('partials/head') %>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+</head>
+
+<body>
+  <%- include('partials/header') %>
+    <content>
+      <%- include('partials/attention', {title: "success" , pictureUrl: "/celebration.gif" }) %>
+        <p>This could take some time, but don't worry, everything will be taken care of behind the scenes. In a few
+          moments, refresh the home screen and it should appear.</p>
+    </content>
+    <%- include('partials/footer') %>
+</body>
+</html>

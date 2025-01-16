@@ -12,6 +12,9 @@
   --grey: #485665;
   --dark-grey: #222930;
 
+  --green: #C1E1C1;
+  --red: #FAA0A0;
+  
   --space: 1rem;
   --boxshadow: 0px 0px 12px 2px rgb(160 160 143 / 50%);
 }

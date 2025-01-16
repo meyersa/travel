@@ -1,12 +1,12 @@
 import express from "express";
 import path from "path";
-import { fileURLToPath } from 'url';
+import { fileURLToPath } from "url";
 import { MongoClient } from "mongodb";
 import NodeCache from "node-cache";
 import { validateTrip } from "./lib/validateTrip.js";
 import { populateImages } from "./lib/populateImages.js";
 import { configDotenv } from "dotenv";
-configDotenv()
+configDotenv();
 
 const app = express();
 const cache = new NodeCache();
@@ -46,7 +46,7 @@ let tripsDB;
 app.set("view engine", "ejs");
 app.set("views", path.join(path.dirname(fileURLToPath(import.meta.url)), "views"));
 app.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), "assets")));
-app.use(express.json())
+app.use(express.json());
 
 // Get specific trip page
 app.get("/trip", async (req, res) => {
@@ -74,7 +74,7 @@ app.get("/trip", async (req, res) => {
       });
     } catch (err) {
       console.error("Error retrieving trips:", err);
-      res.status(500).send("<p>Internal Server Error</p>");
+      res.status(500).send("Internal Server Error");
     }
     cache.set(cleanId, jsonData, 3600);
   } else {
@@ -91,27 +91,52 @@ app.get("/new", async (req, res) => {
 });
 
 // Create trip endpoint
-// app.post("/new", )
+app.post("/new", async (req, res) => {
+  console.log("Received request on post /new");
+
+  var formResp = req.body;
+
+  let where, when, desc;
+  try {
+    where = String(formResp["where"]).trim();
+    if (!where || where.length > 300) {
+      return res.status(400).send("`Where` is invalid");
+    }
+
+    when = String(formResp["when"]).trim();
+    if (!when || when.length > 300) {
+      return res.status(400).send("`When` is invalid");
+    }
+
+    desc = String(formResp["description"]).trim();
+    if (!desc || desc.length > 300) {
+      return res.status(400).send("`Description` is invalid");
+    }
+  } catch (err) {
+    console.error("Could not process /new input", err);
+    res.status(500).send("Internal Server Error");
+  }
+
+  res.status(200).send("Success");
+});
 
 // Add trip endpoint
 app.post("/add", async (req, res) => {
-  console.log("Received request to add trip")
-  
+  console.log("Received request to add trip");
+
   var tripJSON = req.body;
 
   // Try to validate the JSON
   try {
-    console.log("Validating trip...")
+    console.log("Validating trip...");
     await validateTrip(tripJSON);
-
   } catch (err) {
-    console.error(err)
+    console.error(err);
     return res.status(400).send("Trip JSON failed validation");
-  
   }
 
-  // Populate Images 
-  tripJSON = await populateImages(GOOGLE_CONSOLE_ID, GOOGLE_API_KEY, tripJSON) 
+  // Populate Images
+  tripJSON = await populateImages(GOOGLE_CONSOLE_ID, GOOGLE_API_KEY, tripJSON);
 
   if (!tripsDB) {
     return res.status(503).send("Service unavailable");
@@ -119,32 +144,27 @@ app.post("/add", async (req, res) => {
 
   // Check for duplicates
   try {
-    console.log("Checking Mongo for duplicate trips...") 
-    let result = await tripsDB.findOne({ id: tripJSON.id})
+    console.log("Checking Mongo for duplicate trips...");
+    let result = await tripsDB.findOne({ id: tripJSON.id });
 
     if (!!result) {
-      throw new Error() 
-
+      throw new Error();
     }
-
   } catch (err) {
-    console.error("Found a duplicate trip ID")
+    console.error("Found a duplicate trip ID");
     return res.status(400).send("Trip name already exists");
-
   }
 
-  var result; 
+  var result;
   try {
-    console.log("Inserting trip into Mongo...")
+    console.log("Inserting trip into Mongo...");
     result = await tripsDB.insertOne(tripJSON);
-  
   } catch (err) {
-    console.error("Failed to upload document to Mongo", err)
+    console.error("Failed to upload document to Mongo", err);
     return res.status(503).send("Service unavailable");
-
   }
 
-  console.log("Uploaded trip to Mongo")
+  console.log("Uploaded trip to Mongo");
 
   if (result.acknowledged) {
     return res.status(200).send("Success");
@@ -152,6 +172,12 @@ app.post("/add", async (req, res) => {
 
   return res.status(400).send("Unable to insert document", err);
 });
+
+app.get("/success", async (req, res) => {
+  res.render("success", {}
+
+  )
+})
 
 // Get home page
 app.get("/", async (req, res) => {
