@@ -115,8 +115,8 @@ content {
 
 .box {
   box-shadow: var(--boxshadow);
-  max-height: 50vh;
-  min-height: 30vh;
+  max-height: 60vh;
+  min-height: 20vh;
   padding: var(--space);
   width: 100%;
   max-width: 400px;
