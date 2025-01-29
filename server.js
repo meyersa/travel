@@ -169,11 +169,11 @@ app.post("/new", async (req, res) => {
     desc = cleanAndVerify(formResp["desc"]);
   } catch (err) {
     console.error("Could not process /new input", err);
-    res.status(400).send("Invalid response to form");
+    return res.status(400).send("Invalid response to form");
   }
 
   console.log(`Received trip request for\nWhere: ${where}\nWhen: ${when}\nDescription: ${desc}\n`);
-  res.status(200).send("Success");
+  return res.status(200).send("Success");
 });
 
 // Add trip endpoint
