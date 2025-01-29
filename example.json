@@ -3,6 +3,8 @@
     "name": "San Francisco Getaway",
     "startDate": "2025-04-16",
     "endDate": "2025-04-19",
+    "lattitude": "37.7749",
+    "longitude": "-122.4194",
     "description": "A short but eventful trip exploring the iconic sights and culture of San Francisco.",
     "pictureSearchTerms": "Golden Gate Bridge",
     "days": [
