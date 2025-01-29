@@ -79,7 +79,7 @@ content,
 body {
   display: flex;
   flex-direction: column;
-  gap: calc(var(--space) * 5);
+  gap: calc(var(--space) * 4);
 }
 
 content {
@@ -92,6 +92,19 @@ content {
   width: 10%;
   background-color: var(--dark-purple);
   margin-bottom: calc(var(--space) * 2);
+}
+
+.bigbox {
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: var(--space);
+  width: calc(100vw - 4 * var(--space));
+  max-width: 1000px;
+  height: 60vh;
+  border-radius: var(--space);
+  box-shadow: var(--boxshadow);
+  border: solid var(--white);
+
 }
 
 .boxwrap {
