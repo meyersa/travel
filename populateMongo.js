@@ -1,46 +1,30 @@
-const { MongoClient } = require("mongodb");
-require('dotenv').config(); 
-const fs = require("fs");
+import fs from "fs";
+import axios from "axios";
+import { configDotenv } from "dotenv";
+configDotenv();
 
-// Setup Mongo Connection
-const { MONGO_URL, MONGO_DB } = process.env;
+const { SERVER_URL, SERVER_KEY } = process.env; 
 
-const options = {
-  serverSelectionTimeoutMS: 10000,
-};
+async function readFile(fileName) {
+  var jsonData = fs.readFileSync(fileName)
+  jsonData = await JSON.parse(jsonData); 
 
-let tripsDB;
-(async () => {
-  try {
-    // Connect to MongoDB
-    console.log("Connecting to MongoDB...");
-    const client = await MongoClient.connect(MONGO_URL, options);
-    console.log("Connected to MongoDB");
-
-    // Connect to specified DB
-    console.log("Connecting to specified database");
-    const db = client.db(MONGO_DB);
-
-    console.log("Connecting to specified collection");
-    tripsDB = db.collection("trips");
-
-    await upload() 
-    
-    console.log("Mongo is ready...");
-  } catch (e) {
-    console.error("Unable to connect to MongoDB, ignore if this was during initial build", e);
-    process.exit(1);
-  }
-
-  console.log(`Startup finished \n\n\n`)
-
-})();
-
-async function upload() {
-    const jsonFile = "example.json";
-
-    var jsonData =  fs.readFileSync(jsonFile);
-    jsonData = await JSON.parse(jsonData);
-    
-    await tripsDB.insertOne(jsonData)
+  return jsonData; 
 }
+
+async function uploadFile(jsonData) {
+  await axios.post(
+    `${SERVER_URL}/add`,
+    JSON.stringify(jsonData),
+    {
+      headers: {
+        'content-type': 'application/json',
+        'X-API-Key': SERVER_KEY,
+
+      }
+    }
+  )
+  
+}
+
+await uploadFile(await readFile("example.json"));
