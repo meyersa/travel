@@ -115,7 +115,7 @@ content {
   gap: calc(var(--space) * 2);
   box-sizing: border-box;
   margin: var(--space) 0;
-  padding: var(--space);
+  padding: var(--space) 0;
 }
 
 .box {
