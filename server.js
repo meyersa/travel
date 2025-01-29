@@ -13,13 +13,28 @@ const cache = new NodeCache();
 
 const { MONGO_URL, MONGO_DB, GOOGLE_CONSOLE_ID, GOOGLE_API_KEY, SERVER_KEY } = process.env;
 
+if (!MONGO_URL || !MONGO_DB) {
+  throw new Error("Missing Mongo ENVs")
+
+}
+
+if (!GOOGLE_CONSOLE_ID || !GOOGLE_API_KEY) {
+  throw new Error("Missing Google ENVs") 
+
+}
+
+if (!SERVER_KEY) {
+  throw new Error("Missing Server API Key")
+
+}
+
 // Setup Mongo Connection
 const options = {
   serverSelectionTimeoutMS: 10000,
 };
 
 let tripsDB;
-(async () => {
+(async () => {  
   try {
     // Connect to MongoDB
     console.log("Connecting to MongoDB...");
