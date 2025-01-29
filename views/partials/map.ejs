@@ -1,0 +1,44 @@
+<div id="map"></div>
+<style>
+  #map {
+    height: 50dvh;
+    width: 100%;
+    box-shadow: var(--boxshadow);
+    border: solid var(--white);
+    border-radius: var(--space);
+    font-family: inherit;
+  }
+</style>
+<script>
+  var map = L.map("map").setView([<%= lattitude %>, <%= longitude %>], 10);
+
+  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  }).addTo(map);
+
+
+  // Extract stop locations from the trip data
+  var stops = <%- JSON.stringify(days.flatMap(day => day.stops.map(stop => ({
+    name: stop.name,
+    lat: stop.lattitude,
+    lng: stop.longitude,
+    description: stop.description
+  })))) %>;
+
+  // Loop through stops and add markers
+  stops.forEach((stop, index) => {
+    if (stop.lat && stop.lng) {
+        console.log(index);
+
+      let marker = L.marker([parseFloat(stop.lat), parseFloat(stop.lng)])
+        .addTo(map)
+        .bindPopup(`<h3>${index + 1}. ${stop.name}</h3><p>${stop.description}</p>`);
+
+        if (index === 0) {
+            marker.openPopup();
+
+        }
+    }
+  });
+
+</script>
