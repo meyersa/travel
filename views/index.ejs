@@ -11,7 +11,7 @@
     <content>
       <%- include('partials/attention', {title: "let ai do the work while you travel" , pictureUrl: "/demo.gif" }) %>
         <div>
-          <h2>itineraries</h2>
+          <h2>Recent Itineraries</h2>
           <div class="spacer"></div>
           <div id="itineraries">
             <div class="boxwrap">
@@ -35,13 +35,16 @@
           </div>
         </div>
         <div>
-          <h2>behind the scenes</h2>
+          <h2>Behind the Scenes</h2>
           <div class="spacer"></div>
           <p>First you enter the important information</p>
           <div class="boxwrap">
             <div class="box">
               <div>
-                <h2><span class="fancy">where</span> <i class="fa-solid fa-location-dot"></i></h2>
+                <div class="row">
+                  <h2 class="fancy">where</h2>
+                  <i class="fa-solid fa-location-dot"></i>
+                </div>
                 <p>
                   This can be as generic as "somewhere warm" and ChatGPT will find somewhere that suits your needs. For
                   example:
@@ -55,15 +58,20 @@
             </div>
             <div class="box">
               <div>
-                <h2><span class="fancy">when</span> <i class="fa-solid fa-clock"></i></h2>
+                <div class="row">
+                  <h2 class="fancy">when</h2>
+                  <i class="fa-solid fa-clock"></i>
+                </div>
                 <p>The timeframe for the trip, useful for deciding which things are most important and what's in season.
                 </p>
               </div>
             </div>
             <div class="box">
               <div>
-
-                <h2><span class="fancy">what</span> <i class="fa-solid fa-question"></i></h2>
+                <div class="row">
+                  <h2 class="fancy">what</h2>
+                  <i class="fa-solid fa-question"></i>
+                </div>
                 <p>
                   The most generic of the inputs - a description of what you want to do. From seeing one of the 7
                   wonders
@@ -82,5 +90,4 @@
     </content>
     <%- include('partials/footer') %>
 </body>
-
 </html>
