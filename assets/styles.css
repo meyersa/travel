@@ -16,7 +16,7 @@
   --red: #FAA0A0;
   
   --space: 1rem;
-  --boxshadow: 0px 0px 12px 2px rgb(160 160 143 / 50%);
+  --boxshadow: 0px 0px 6px 2px rgb(160 160 143 / 50%);
 }
 
 html {
@@ -24,6 +24,8 @@ html {
   color: var(--dark-grey);
   font-size: 1.15rem;
   line-height: 1.15;
+  font-family: sans-serif;
+
 }
 
 img {
@@ -43,16 +45,6 @@ h3 {
 
 h1 {
   size: 2rem;
-}
-
-p,
-li,
-label,
-button,
-input,
-textarea,
-small {
-  font-family: sans-serif;
 }
 
 i {
