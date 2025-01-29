@@ -13,7 +13,7 @@ async function readFile(fileName) {
 }
 
 async function uploadFile(jsonData) {
-  await axios.post(
+  return await axios.post(
     `${SERVER_URL}/add`,
     JSON.stringify(jsonData),
     {
@@ -24,7 +24,8 @@ async function uploadFile(jsonData) {
       }
     }
   )
-  
+
 }
 
-await uploadFile(await readFile("example.json"));
+const res = await uploadFile(await readFile("example.json"));
+console.log(res)
