@@ -10,7 +10,7 @@
 <body>
   <%- include('partials/header') %>
     <content>
-      <form id="tripForm">
+      <form id="tripForm" class="bigbox">
         <div>
           <h1>New Trip</h1>
           <div class="spacer"></div>
@@ -129,16 +129,11 @@
   }
 
   #tripForm {
-    width: calc(100vw - 2 * var(--space));
-    box-sizing: border-box;
-    max-width: 600px;
-    margin: 0 auto;
-    box-shadow: var(--boxshadow);
-    padding: var(--space);
-    border-radius: var(--space);
     display: flex;
     flex-direction: column;
     gap: var(--space);
+    height: fit-content;
+    width: 100%;
   }
 
   #tripForm>.options>div {
