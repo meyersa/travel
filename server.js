@@ -11,7 +11,7 @@ configDotenv();
 const app = express();
 const cache = new NodeCache();
 
-const { MONGO_URL, MONGO_DB, GOOGLE_CONSOLE_ID, GOOGLE_API_KEY } = process.env;
+const { MONGO_URL, MONGO_DB, GOOGLE_CONSOLE_ID, GOOGLE_API_KEY, SERVER_KEY } = process.env;
 
 // Setup Mongo Connection
 const options = {
@@ -179,6 +179,15 @@ app.post("/new", async (req, res) => {
 // Add trip endpoint
 app.post("/add", async (req, res) => {
   preFlightLog(req);
+
+  // Verify API Key
+  const IN_KEY = req.get("X-API-Key");
+  if (IN_KEY != SERVER_KEY) {
+    console.error("Invalid API Key", IN_KEY)
+    return res.status(401).send("Unauthorized");
+
+  }
+  console.log("Valid API Key")
 
   // Try to validate the JSON
   var tripJSON = req.body;
