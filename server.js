@@ -342,7 +342,7 @@ app.get("/check", async (req, res) => {
 /*
  * Create Trip from Form (When the trip is not already made)
  */
-app.post("/new", async (req, res) => {
+app.post("/api/new", async (req, res) => {
   preFlightLog(req);
 
   // Get form data from the req body
@@ -394,7 +394,7 @@ app.post("/new", async (req, res) => {
 /*
  * Create trip from JSON (When the trip is already made)
  */
-app.post("/add", async (req, res) => {
+app.post("/api/add", async (req, res) => {
   preFlightLog(req);
 
   // Verify API Key

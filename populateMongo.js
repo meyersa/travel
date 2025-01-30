@@ -14,7 +14,7 @@ async function readFile(fileName) {
 
 async function uploadFile(jsonData) {
   return await axios.post(
-    `${SERVER_URL}/add`,
+    `${SERVER_URL}/api/add`,
     JSON.stringify(jsonData),
     {
       headers: {
