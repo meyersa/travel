@@ -9,25 +9,28 @@ import { configDotenv } from "dotenv";
 import { generate } from "./lib/queryOpenAI.js";
 configDotenv();
 
+console.log("Starting server...");
 const app = express();
 const cache = new NodeCache();
 
-const { MONGO_URL, MONGO_DB, GOOGLE_CONSOLE_ID, GOOGLE_API_KEY, SERVER_KEY, OPENAI_KEY } = process.env;
+const { MONGO_URL, MONGO_DB, GOOGLE_CONSOLE_ID, GOOGLE_API_KEY, SERVER_KEY, OPENAI_KEY } =
+  process.env;
+function defaultValidation() {
+  if (!MONGO_URL || !MONGO_DB) {
+    throw new Error("Missing Mongo ENVs");
+  }
 
-if (!MONGO_URL || !MONGO_DB) {
-  throw new Error("Missing Mongo ENVs")
+  if (!GOOGLE_CONSOLE_ID || !GOOGLE_API_KEY) {
+    throw new Error("Missing Google ENVs");
+  }
 
+  if (!SERVER_KEY) {
+    throw new Error("Missing Server API Key");
+  }
+
+  console.log("Validated default variables");
 }
-
-if (!GOOGLE_CONSOLE_ID || !GOOGLE_API_KEY) {
-  throw new Error("Missing Google ENVs") 
-
-}
-
-if (!SERVER_KEY) {
-  throw new Error("Missing Server API Key")
-
-}
+defaultValidation();
 
 // Setup Mongo Connection
 const options = {
@@ -35,7 +38,7 @@ const options = {
 };
 
 let tripsDB;
-(async () => {  
+(async () => {
   try {
     // Connect to MongoDB
     console.log("Connecting to MongoDB...");
@@ -63,6 +66,7 @@ app.set("view engine", "ejs");
 app.set("views", path.join(path.dirname(fileURLToPath(import.meta.url)), "views"));
 app.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), "assets")));
 app.use(express.json());
+console.log("Setup default routes");
 
 // Tries to pull a value from cache or uses a function to set it
 async function tryCacheOrSet(name, valueFunction, cacheLength = 3600) {
@@ -89,7 +93,14 @@ async function tryCacheOrSet(name, valueFunction, cacheLength = 3600) {
   return newRes;
 }
 
-// Get a trip ID (Wrapper for Mongo func)
+// TODO: Make new flow
+/*
+ * Get a trip ID
+ * 1. Check cache for trip ID, return if exist
+ * 2. Query Mongo for trip ID, throw error if not exist
+ * 3. Set cache for trip ID
+ * 4. Return trip
+ */
 async function getTrip(id) {
   console.log(`Getting trip information for ${id}`);
   if (!tripsDB) {
@@ -101,20 +112,19 @@ async function getTrip(id) {
   });
 }
 
-// Basic log for information, can add more  with more headers
+// Basic log for information, can add more with more headers
 function preFlightLog(req) {
-  let output = `Received request on ${req.path}`
+  let output = `Received request on ${req.path}`;
 
   if (req.query) {
-    output += `, with queries ${JSON.stringify(req.query)}`
-
+    output += `, with queries ${JSON.stringify(req.query)}`;
   }
 
   if (req.body.length > 1) {
-    output += `, and a body`
+    output += `, and a body`;
   }
 
-  console.log(output)
+  console.log(output);
 }
 
 // Clean and verify an input
@@ -126,11 +136,9 @@ function cleanAndVerify(value, minLength = 5, maxLength = 300) {
   value = String(value).trim();
   if (value.length < minLength) {
     throw new Error("Input value is too short");
-
   }
-  if(value.length > maxLength) {
-    throw new Error("input value is too long")
-
+  if (value.length > maxLength) {
+    throw new Error("input value is too long");
   }
 
   return value;
@@ -139,6 +147,7 @@ function cleanAndVerify(value, minLength = 5, maxLength = 300) {
 async function getTrips() {
   console.log("Getting trips from Mongo");
   if (!tripsDB) {
+    // TODO - get rid of this status send here
     return res.status(503).send("Service unavailable");
   }
 
@@ -159,48 +168,26 @@ async function getTrips() {
     .toArray();
 }
 
-// Get specific trip page
-app.get("/trip", async (req, res) => {
-  preFlightLog(req);
-
-  const { id } = req.query;
-  if (!id) {
-    return res.status(400).send("Trip ID is required");
-  }
-
-  try {
-    // Render template with trip data
-    // TODO: Handle 404s, missing trip - swap getTrip to a checkTrip(id) func/return False or something
-    res.render("trip", { trip: await tryCacheOrSet(id, () => getTrip(id))});
-    
-  } catch (err) {
-    console.error("Failed to get Trip information", err);
-    return res.status(503).send("Service unavailable");
-  }
-});
-
-/* 
+/*
  * Handle incoming TripJSON
- * Assumed to be already filled in 
- *  
+ * Assumed to be already filled in
+ *
  * 1. Verifies Structure
  * 2. Checks for Duplicates
  * 3. Populates Images
  * 4. Inserts into Mongo
- * 
+ *
  * Everything is caught so output can be assumed safe to render to user if wanted
  */
 async function populateAndSubmit(tripJSON) {
   // 1. Validate Trip
   try {
-    await validateTrip(tripJSON); 
-
-  } catch(err) {
+    await validateTrip(tripJSON);
+  } catch (err) {
     console.error("Failed to validate tripJSON", err);
-    throw new Error("Failed to validate tripJSON")
-
+    throw new Error("Failed to validate tripJSON");
   }
-  
+
   // 2. Check for Dups
   try {
     console.log("Checking Mongo for duplicate trips...");
@@ -212,17 +199,14 @@ async function populateAndSubmit(tripJSON) {
   } catch (err) {
     console.error("Found a duplicate trip ID", err);
     throw new Error("Trip name already exists");
-
   }
 
   // 3. Populate Images
   try {
     tripJSON = await populateImages(GOOGLE_CONSOLE_ID, GOOGLE_API_KEY, tripJSON);
-
-  } catch(err) {
-    console.error("Failed to populate images from google", err)
-    throw new Error("Failed to populate images from google")
-
+  } catch (err) {
+    console.error("Failed to populate images from google", err);
+    throw new Error("Failed to populate images from google");
   }
 
   // 4. Insert result if not dup
@@ -232,20 +216,37 @@ async function populateAndSubmit(tripJSON) {
 
     if (!result.acknowledged) {
       throw new Error("Result not acknowledged");
-
     }
 
     console.log("Uploaded trip to Mongo");
     return true;
-
   } catch (err) {
     console.error("Failed to upload document to Mongo", err);
     throw new Error("Failed to upload document to Mongo");
-
   }
 }
 
-/* 
+// Get specific trip page
+app.get("/trip", async (req, res) => {
+  preFlightLog(req);
+
+  const { id } = req.query;
+  if (!id) {
+    // TODO: Add 404 page with option to go home?
+    return res.status(400).send("Trip ID is required");
+  }
+
+  try {
+    // Render template with trip data
+    // TODO: Handle 404s, missing trip - swap getTrip to a checkTrip(id) func/return False or something
+    res.render("trip", { trip: await tryCacheOrSet(id, () => getTrip(id)) });
+  } catch (err) {
+    console.error("Failed to get Trip information", err);
+    return res.status(503).send("Service unavailable");
+  }
+});
+
+/*
  * Create Trip from Form (When the trip is not already made)
  */
 app.post("/new", async (req, res) => {
@@ -262,40 +263,35 @@ app.post("/new", async (req, res) => {
     console.error("Could not process /new input", err);
     return res.status(400).send("Invalid response to form");
   }
-  
-  console.log("Received valid trip request, submitting to ChatGPT")
+
+  console.log("Received valid trip request, submitting to ChatGPT");
   const body = {
     where: where,
-    when: when, 
-    description: description 
-
-  }
+    when: when,
+    description: description,
+  };
 
   // TODO: Add some kind of global ratelimit - maybe set default time - if within 5 minutes of that then do not process
   var tripJSON;
   try {
-    tripJSON = await generate(body, OPENAI_KEY)
-    tripJSON = JSON.parse(tripJSON)
-
+    tripJSON = await generate(body, OPENAI_KEY);
+    tripJSON = JSON.parse(tripJSON);
   } catch (err) {
-    console.error("Failed to query ChatGPT with /add contents", err)
-    return res.status(503).send("Error querying ChatGPT")
-
+    console.error("Failed to query ChatGPT with /add contents", err);
+    return res.status(400).send("Error querying ChatGPT");
   }
 
   try {
     if (await populateAndSubmit(tripJSON)) {
-      return res.status(200).send("Submitted tripJSON")
-
+      return res.status(200).send("Submitted tripJSON");
     }
   } catch (err) {
     console.error("Failed to process tripJSON", err);
     return res.status(400).send("Failed to process tripJSON");
-
   }
 });
 
-/* 
+/*
  * Create trip from JSON (When the trip is already made)
  */
 app.post("/add", async (req, res) => {
@@ -304,23 +300,20 @@ app.post("/add", async (req, res) => {
   // Verify API Key
   const IN_KEY = req.get("X-API-Key");
   if (IN_KEY != SERVER_KEY) {
-    console.error("Invalid API Key", IN_KEY)
+    console.error("Invalid API Key", IN_KEY);
     return res.status(401).send("Unauthorized");
-
   }
-  console.log("Valid API Key")
+  console.log("Valid API Key");
 
   // Try to validate the JSON
   var tripJSON = req.body;
   try {
     if (await populateAndSubmit(tripJSON)) {
-      return res.status(200).send("Submitted tripJSON")
-
+      return res.status(200).send("Submitted tripJSON");
     }
   } catch (err) {
     console.error("Failed to process tripJSON", err);
     return res.status(400).send("Failed to process tripJSON");
-
   }
 });
 
@@ -337,6 +330,8 @@ app.get("/", async (req, res) => {
 });
 
 // Success page
+// TODO: Add a query when transfered here and wait for it to populate then redirect
+// TODO: Add endpoint to check if trip exists while returning 200
 app.get("/success", async (req, res) => {
   preFlightLog(req);
   res.render("success", {});
