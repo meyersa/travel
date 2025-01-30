@@ -6,12 +6,13 @@ import NodeCache from "node-cache";
 import { validateTrip } from "./lib/validateTrip.js";
 import { populateImages } from "./lib/populateImages.js";
 import { configDotenv } from "dotenv";
+import { generate } from "./lib/queryOpenAI.js";
 configDotenv();
 
 const app = express();
 const cache = new NodeCache();
 
-const { MONGO_URL, MONGO_DB, GOOGLE_CONSOLE_ID, GOOGLE_API_KEY, SERVER_KEY } = process.env;
+const { MONGO_URL, MONGO_DB, GOOGLE_CONSOLE_ID, GOOGLE_API_KEY, SERVER_KEY, OPENAI_KEY } = process.env;
 
 if (!MONGO_URL || !MONGO_DB) {
   throw new Error("Missing Mongo ENVs")
@@ -164,14 +165,82 @@ app.get("/trip", async (req, res) => {
 
   try {
     // Render template with trip data
-    res.render("trip", { trip: await tryCacheOrSet(id, () => getTrip(id)) });
+    // TODO: Handle 404s, missing trip - swap getTrip to a checkTrip(id) func/return False or something
+    res.render("trip", { trip: await tryCacheOrSet(id, () => getTrip(id))});
+    
   } catch (err) {
     console.error("Failed to get Trip information", err);
     return res.status(503).send("Service unavailable");
   }
 });
 
-// Create trip endpoint
+/* 
+ * Handle incoming TripJSON
+ * Assumed to be already filled in 
+ *  
+ * 1. Verifies Structure
+ * 2. Checks for Duplicates
+ * 3. Populates Images
+ * 4. Inserts into Mongo
+ */
+async function populateAndSubmit(tripJSON) {
+  // 1. Validate Trip
+  try {
+    await validateTrip(tripJSON); 
+
+  } catch(err) {
+    console.error("Failed to validate tripJSON", err);
+    throw new Error("Failed to validate tripJSON")
+
+  }
+  
+  // 2. Check for Dups
+  try {
+    console.log("Checking Mongo for duplicate trips...");
+    let result = await tripsDB.findOne({ id: tripJSON.id });
+
+    if (!!result) {
+      throw new Error();
+    }
+  } catch (err) {
+    console.error("Found a duplicate trip ID", error);
+    throw new Error("Trip name already exists");
+
+  }
+
+  // 3. Populate Images
+  try {
+    tripJSON = await populateImages(GOOGLE_CONSOLE_ID, GOOGLE_API_KEY, tripJSON);
+
+  } catch(err) {
+    console.error("Failed to populate images from google", err)
+    throw new Error("Failed to populate images from google")
+
+  }
+
+  // 4. Insert result if not dup
+  try {
+    console.log("Inserting trip into Mongo...");
+    const result = await tripsDB.insertOne(tripJSON);
+
+    if (!result.acknowledged) {
+      throw new Error("Result not acknowledged");
+
+    }
+
+    console.log("Uploaded trip to Mongo");
+    return true;
+
+  } catch (err) {
+    console.error("Failed to upload document to Mongo", err);
+    throw new Error("Failed to upload document to Mongo");
+
+  }
+}
+
+/* 
+ * Create Trip from Form (When the trip is not already made)
+ */
 app.post("/new", async (req, res) => {
   preFlightLog(req);
 
@@ -186,12 +255,42 @@ app.post("/new", async (req, res) => {
     console.error("Could not process /new input", err);
     return res.status(400).send("Invalid response to form");
   }
+  
+  console.log("Received valid trip request, submitting to ChatGPT")
+  const body = {
+    where: where,
+    when: when, 
+    description: desc 
 
-  console.log(`Received trip request for\nWhere: ${where}\nWhen: ${when}\nDescription: ${desc}\n`);
-  return res.status(200).send("Success");
+  }
+
+  // TODO: Add some kind of global ratelimit - maybe set default time - if within 5 minutes of that then do not process
+  var tripJSON;
+  try {
+    tripJSON = await generate(body, OPENAI_KEY)
+
+  } catch (err) {
+    console.error("Failed to query ChatGPT with /add contents")
+    res.status(503).send("Error querying ChatGPT")
+
+  }
+
+  try {
+    const res = await populateAndSubmit(tripJSON)
+    if (res) {
+      return res.status(200).send("Submitted tripJSON")
+
+    }
+  } catch (err) {
+    console.err("Failed to process tripJSON", err);
+    return res.status(400).send("Failed to process tripJSON", err);
+
+  }
 });
 
-// Add trip endpoint
+/* 
+ * Create trip from JSON (When the trip is already made)
+ */
 app.post("/add", async (req, res) => {
   preFlightLog(req);
 
@@ -207,47 +306,15 @@ app.post("/add", async (req, res) => {
   // Try to validate the JSON
   var tripJSON = req.body;
   try {
-    await validateTrip(tripJSON);
-  } catch (err) {
-    console.error(err);
-    return res.status(400).send("Trip JSON failed validation");
-  }
+    const res = await populateAndSubmit(tripJSON)
+    if (res) {
+      return res.status(200).send("Submitted tripJSON")
 
-  // Populate Images
-  tripJSON = await populateImages(GOOGLE_CONSOLE_ID, GOOGLE_API_KEY, tripJSON);
-
-  if (!tripsDB) {
-    return res.status(503).send("Service unavailable");
-  }
-
-  // Check for duplicates
-  try {
-    console.log("Checking Mongo for duplicate trips...");
-    let result = await tripsDB.findOne({ id: tripJSON.id });
-
-    if (!!result) {
-      throw new Error();
     }
   } catch (err) {
-    console.error("Found a duplicate trip ID");
-    return res.status(400).send("Trip name already exists");
-  }
+    console.err("Failed to process tripJSON", err);
+    return res.status(400).send("Failed to process tripJSON", err);
 
-  // Insert result if not dup
-  var result;
-  try {
-    console.log("Inserting trip into Mongo...");
-    result = await tripsDB.insertOne(tripJSON);
-
-    if (!result.acknowledged) {
-      throw new Error("Result not acknowledged");
-    }
-
-    console.log("Uploaded trip to Mongo");
-    return res.status(200).send("Success");
-  } catch (err) {
-    console.error("Failed to upload document to Mongo", err);
-    return res.status(503).send("Service unavailable");
   }
 });
 
