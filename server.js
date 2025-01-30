@@ -282,7 +282,7 @@ app.post("/new", async (req, res) => {
 
     }
   } catch (err) {
-    console.err("Failed to process tripJSON", err);
+    console.error("Failed to process tripJSON", err);
     return res.status(400).send("Failed to process tripJSON", err);
 
   }
@@ -312,7 +312,7 @@ app.post("/add", async (req, res) => {
 
     }
   } catch (err) {
-    console.err("Failed to process tripJSON", err);
+    console.error("Failed to process tripJSON", err);
     return res.status(400).send("Failed to process tripJSON", err);
 
   }
