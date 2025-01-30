@@ -284,8 +284,7 @@ app.post("/new", async (req, res) => {
   }
 
   try {
-    const res = await populateAndSubmit(tripJSON)
-    if (res) {
+    if (await populateAndSubmit(tripJSON)) {
       return res.status(200).send("Submitted tripJSON")
 
     }
