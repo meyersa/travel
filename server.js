@@ -182,6 +182,8 @@ app.get("/trip", async (req, res) => {
  * 2. Checks for Duplicates
  * 3. Populates Images
  * 4. Inserts into Mongo
+ * 
+ * Everything is caught so output can be assumed safe to render to user if wanted
  */
 async function populateAndSubmit(tripJSON) {
   // 1. Validate Trip
