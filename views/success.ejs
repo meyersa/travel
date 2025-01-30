@@ -11,9 +11,37 @@
   <%- include('partials/header') %>
     <content>
       <%- include('partials/attention', {title: "success" , pictureUrl: "/celebration.gif" }) %>
-        <p>This could take some time, but don't worry, everything will be taken care of behind the scenes. In a few
-          moments, refresh the home screen and it should appear.</p>
+        <div>
+          <p>Your new trip is being created as we speak 😎 In a few moments you'll be redirected! If you aren't
+            redirected, try going back to the home page - maybe it's just a little shy</p>
+        </div>
     </content>
     <%- include('partials/footer') %>
 </body>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
+  function checkPage() {
+    fetch(`/api/check?id=${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.state == "exists") {
+          console.log("Page exists, redirecting")
+          window.location.href = `/trip?id=${id}`;
+
+        } else if (data.state == "fail") {
+          console.log("Page failed, redirecting")
+          window.location.href = `/fail`;
+
+        }
+        console.log("Page does not exist yet, waiting...")
+
+      })
+  }
+
+  // Check every 5 seconds
+  setInterval(checkPage, 5000)
+</script>
+
 </html>

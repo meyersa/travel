@@ -76,13 +76,16 @@
 
     triggerLoadingState()
 
+    const id = Date.now()
     const formData = {
+      id: id,
       where: document.getElementById("where").value,
       when: document.getElementById("when").value,
       description: document.getElementById("description").value,
       captcha: turnstileToken
     };
-
+    // TODO: Focus on Where box
+    // TODO: Enter to submit
     fetch('/api/new', {
       method: 'POST',
       headers: {
@@ -95,7 +98,7 @@
 
         // Redirect to success page on success
         if (response.ok) {
-          window.location.href = "/success"
+          window.location.href = `/success?id=${id}`
         } else {
           triggerErrorState()
         }

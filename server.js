@@ -33,7 +33,7 @@ function defaultValidation() {
 defaultValidation();
 
 // Setup Rate Limiter
-let lastExecutionTime = Date.now();
+let lastExecutionTime = 0;
 function checkRate() {
   const now = Date.now();
   const fiveMinutes = 5 * 60 * 1000;
@@ -52,7 +52,7 @@ const options = {
   serverSelectionTimeoutMS: 10000,
 };
 
-let tripsDB;
+let tripsDB, failsDB;
 (async () => {
   try {
     // Connect to MongoDB
@@ -66,6 +66,7 @@ let tripsDB;
 
     console.log("Connecting to specified collection");
     tripsDB = db.collection("trips");
+    failsDB = db.collection("fails");
 
     console.log("Mongo is ready...");
   } catch (e) {
@@ -251,6 +252,35 @@ async function populateAndSubmit(tripJSON) {
   }
 }
 
+// Handle failure submission 
+async function populateFail(id) {
+  console.log(`Failured received when creating trip ${id}`)
+
+  try {
+    await failsDB.insertOne({id: id})
+
+    console.log(`Uploaded failure to Mongo ${id}`)
+
+  } catch (err) {
+    console.error(`Failed to upload failure (ironic) to Mongo ${id}`)
+  
+  }
+}
+
+// Check for fail
+async function getFail(id) {
+  return await tryCacheOrSet(id, async () => {
+    console.log(`Checking for fail ${id}`);
+    if (!failsDB) {
+      throw new Error("Mongo is unavailable");
+    }
+
+    return await failsDB.findOne({
+      id: id,
+    });
+  });
+}
+
 /* 
  * User Rendered Pages 
  */
@@ -274,6 +304,7 @@ app.get("/trip", async (req, res) => {
 });
 
 // Get home page
+// TODO: Sort these by ID
 app.get("/", async (req, res) => {
   preFlightLog(req);
 
@@ -286,12 +317,18 @@ app.get("/", async (req, res) => {
 });
 
 // Success page
-// TODO: Add a query when transfered here and wait for it to populate then redirect
 app.get("/success", async (req, res) => {
   preFlightLog(req);
 
+  // Shouldn't be here without an ID
+  const { id } = req.query;
+  if (!id) {
+    handleNotFound(res, req);
+  }
+
+
   try {
-    res.render("success", {});
+    res.render("success");
   } catch (err) {
     console.log("Failed to render success", err);
     handleUnavailable(res, req);
@@ -321,20 +358,27 @@ app.get("/notfound", async (req, res) => {
  */
 
 // Check if a trip exists or not for web endpoint
-app.get("/check", async (req, res) => {
+app.get("/api/check", async (req, res) => {
   preFlightLog(req);
 
   const { id } = req.query;
-
   if (!id) {
     return res.status(400).send("Trip ID is required");
   }
 
   try {
     await getTrip(id);
-    return res.status(200).json({ exists: true });
+    return res.status(200).json({ state: "exists" });
   } catch (err) {
-    return res.status(200).json({ exists: false });
+    // Doesn't exist then check fails
+    try {
+      await getFail(id);
+      return res.status(200).json({ state: "fail" })
+
+    } catch (err) {
+      return res.status(200).json({ state: "no" });
+
+    }
   }
 });
 
@@ -345,10 +389,11 @@ app.post("/api/new", async (req, res) => {
   preFlightLog(req);
 
   // Get form data from the req body
-  let where, when, description;
+  let id, where, when, description;
   try {
     var formResp = req.body;
 
+    id = cleanAndVerify(formResp["id"]);
     where = cleanAndVerify(formResp["where"]);
     when = cleanAndVerify(formResp["when"]);
     description = cleanAndVerify(formResp["description"], undefined, 1500);
@@ -371,22 +416,27 @@ app.post("/api/new", async (req, res) => {
     return res.status(429).send("Rate limited. Please wait.");
   }
 
+  res.status(200).send("Success")
+
   var tripJSON;
   try {
     tripJSON = await generate(body, OPENAI_KEY);
     tripJSON = JSON.parse(tripJSON);
+    tripJSON["id"] = id;
+
   } catch (err) {
     console.error("Failed to query ChatGPT with /add contents", err);
-    return res.status(400).send("Error querying ChatGPT");
+    await populateFail(id)
+
   }
 
   try {
     if (await populateAndSubmit(tripJSON)) {
-      return res.status(200).send("Submitted tripJSON");
     }
   } catch (err) {
     console.error("Failed to process tripJSON", err);
-    return res.status(400).send("Failed to process tripJSON");
+    await populateFail(id) 
+    
   }
 });
 
@@ -407,6 +457,9 @@ app.post("/api/add", async (req, res) => {
   // Try to validate the JSON
   try {
     var tripJSON = req.body;
+
+    // Add ID based on submission time
+    tripJSON["id"] = Date.now() 
 
     if (await populateAndSubmit(tripJSON)) {
       return res.status(200).send("Submitted tripJSON");
