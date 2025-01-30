@@ -124,8 +124,13 @@ function cleanAndVerify(value, minLength = 5, maxLength = 300) {
   }
 
   value = String(value).trim();
-  if (value.length < minLength || value.length > maxLength) {
-    throw new Error("Input value is not the correct length");
+  if (value.length < minLength) {
+    throw new Error("Input value is too short");
+
+  }
+  if(value.length > maxLength) {
+    throw new Error("input value is too long")
+
   }
 
   return value;
@@ -248,11 +253,11 @@ app.post("/new", async (req, res) => {
 
   // Get form data from the req body
   var formResp = req.body;
-  let where, when, desc;
+  let where, when, description;
   try {
     where = cleanAndVerify(formResp["where"]);
     when = cleanAndVerify(formResp["when"]);
-    desc = cleanAndVerify(formResp["desc"]);
+    description = cleanAndVerify(formResp["description"], undefined, 1500);
   } catch (err) {
     console.error("Could not process /new input", err);
     return res.status(400).send("Invalid response to form");
@@ -262,7 +267,7 @@ app.post("/new", async (req, res) => {
   const body = {
     where: where,
     when: when, 
-    description: desc 
+    description: description 
 
   }
 
@@ -285,7 +290,7 @@ app.post("/new", async (req, res) => {
     }
   } catch (err) {
     console.error("Failed to process tripJSON", err);
-    return res.status(400).send("Failed to process tripJSON", err);
+    return res.status(400).send("Failed to process tripJSON");
 
   }
 });
