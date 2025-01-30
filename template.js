@@ -25,7 +25,6 @@ const additionalInfoSchema = z.object({
 });
 
 const tripSchema = z.object({
-  id: z.string(), // Unique Trip ID
   name: z.string(),
   startDate: z.string(), // Format: yyyy-mm-dd
   endDate: z.string(), // Format: yyyy-mm-dd
