@@ -108,23 +108,24 @@ async function tryCacheOrSet(name, valueFunction, cacheLength = 3600) {
   return newRes;
 }
 
-// TODO: Make new flow
 /*
- * Get a trip ID
+ * Get a trip ID (Reuse tryCacheOrSet for this)
  * 1. Check cache for trip ID, return if exist
  * 2. Query Mongo for trip ID, throw error if not exist
  * 3. Set cache for trip ID
  * 4. Return trip
  */
 async function getTrip(id) {
-  console.log(`Getting trip information for ${id}`);
-  if (!tripsDB) {
-    throw new Error("Mongo not set");
-  }
-
-  return await tripsDB.findOne({
-    id: id,
-  });
+  return await tryCacheOrSet(id, async () => {
+    console.log(`Getting trip information for ${id}`);
+    if (!tripsDB) {
+      throw new Error("Mongo not set");
+    }
+  
+    return await tripsDB.findOne({
+      id: id,
+    });
+  })
 }
 
 // Basic log for information, can add more with more headers
@@ -254,12 +255,14 @@ app.get("/trip", async (req, res) => {
   try {
     // Render template with trip data
     // TODO: Handle 404s, missing trip - swap getTrip to a checkTrip(id) func/return False or something
-    res.render("trip", { trip: await tryCacheOrSet(id, () => getTrip(id)) });
+    res.render("trip", { trip: await getTrip(id) });
   } catch (err) {
     console.error("Failed to get Trip information", err);
     return res.status(503).send("Service unavailable");
   }
 });
+
+
 
 /*
  * Create Trip from Form (When the trip is not already made)
@@ -364,6 +367,7 @@ app.get("/new", async (req, res) => {
   preFlightLog(req);
   res.render("new");
 });
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

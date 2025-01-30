@@ -1,0 +1,103 @@
+{
+  "ID": "SummerTaipeiExplorer23",
+  "name": "Summer Expedition to Taiwan's Beauty",
+  "startDate": "2023-07-01",
+  "endDate": "2023-07-10",
+  "description": "Explore the serene landscapes and vibrant city life of Taiwan while ensuring a safe, enriching experience.",
+  "pictureSearchTerms": "Taiwan nature city",
+  "days": [
+    {
+      "date": "2023-07-01",
+      "stops": [
+        {
+          "location": "Taipei",
+          "activity": "Explore night markets",
+          "searchTerms": "Taipei night market"
+        }
+      ]
+    },
+    {
+      "date": "2023-07-02",
+      "stops": [
+        {
+          "location": "Yangmingshan National Park",
+          "activity": "Hiking",
+          "searchTerms": "Yangmingshan hiking"
+        }
+      ]
+    },
+    {
+      "date": "2023-07-03",
+      "stops": [
+        {
+          "location": "Shilin",
+          "activity": "National Palace Museum visit",
+          "searchTerms": "National Palace Museum"
+        }
+      ]
+    },
+    {
+      "date": "2023-07-04",
+      "stops": [
+        { "location": "Taroko Gorge", "activity": "Scenic tour", "searchTerms": "Taroko Gorge" }
+      ]
+    },
+    {
+      "date": "2023-07-05",
+      "stops": [
+        { "location": "Hualien", "activity": "River rafting", "searchTerms": "Hualien rafting" }
+      ]
+    },
+    {
+      "date": "2023-07-06",
+      "stops": [
+        {
+          "location": "Kenting National Park",
+          "activity": "Beach day",
+          "searchTerms": "Kenting beach"
+        }
+      ]
+    },
+    {
+      "date": "2023-07-07",
+      "stops": [
+        {
+          "location": "Kaohsiung",
+          "activity": "Liuhe Night Market",
+          "searchTerms": "Liuhe Night Market"
+        }
+      ]
+    },
+    {
+      "date": "2023-07-08",
+      "stops": [
+        {
+          "location": "Alishan",
+          "activity": "Sunrise mountain tour",
+          "searchTerms": "Alishan sunrise"
+        }
+      ]
+    },
+    {
+      "date": "2023-07-09",
+      "stops": [
+        {
+          "location": "Jiufen",
+          "activity": "Explore old street",
+          "searchTerms": "Jiufen old street"
+        }
+      ]
+    },
+    {
+      "date": "2023-07-10",
+      "stops": [
+        {
+          "location": "Taipei 101",
+          "activity": "Observation deck visit",
+          "searchTerms": "Taipei 101"
+        }
+      ]
+    }
+  ],
+  "additional": "Avoid areas near ongoing demonstrations. Bring sunscreen for outdoor adventures. Try bubble tea in Taipei!"
+}
