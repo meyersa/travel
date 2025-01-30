@@ -11,6 +11,8 @@
       <!-- Main Trip Banner Section -->
       <%- include('partials/attention', {title: trip.name, pictureUrl: trip.picture.pictureUrl}) %>
 
+      <p><%= trip.description %></p>
+
       <!-- Loop through each day in the trip -->
       <% trip.days.forEach(day=> { %>
       <section class="day-section">
@@ -23,8 +25,14 @@
           <% day.stops.forEach(stop=> { %>
           <div class="box">
             <div>
-              <h3><%= stop.startTime %> - <%= stop.endTime %></h3>
-              <h2><span class="fancy"> <%= stop.name %> </span></h2>
+              <div class="row">
+                <div>
+                  <h3><%= stop.startTime %> - <%= stop.endTime %></h3>
+                  <h2><span class="fancy"> <%= stop.name %> </span></h2>
+                </div>
+                <!-- TODO: Center this -->
+                <i class="fa-solid fa-map"></i>
+              </div>
               <p><%= stop.description %></p>
             </div>
             <% if (stop && stop.picture && stop.picture.pictureUrl) { %>
@@ -43,7 +51,7 @@
         <div class="spacer"></div>
 
         <!-- Map of trip -->
-        <%- include('partials/map', {lattitude: trip.lattitude, longitude: trip.longitude, days: trip.days}) %>
+        <%- include('partials/map', {latitude: trip.latitude, longitude: trip.longitude, days: trip.days}) %>
       </section>
       <!-- Additional Information Section -->
       <section>
