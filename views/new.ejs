@@ -41,8 +41,15 @@
     <%- include('partials/footer') %>
 </body>
 <script>
+  const button = document.getElementById("button");
+
+  function triggerLoadingState() {
+    button.textContent = "";
+    button.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i>`
+    
+  }
+
   function triggerErrorState() {
-    const button = document.getElementById("button");
 
     // Change the button's appearance
     button.style.backgroundColor = "var(--red)";
@@ -66,6 +73,8 @@
       alert("Please complete the CAPTCHA.");
       return;
     }
+
+    triggerLoadingState()
 
     const formData = {
       where: document.getElementById("where").value,
