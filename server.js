@@ -251,6 +251,10 @@ async function populateAndSubmit(tripJSON) {
   }
 }
 
+/* 
+ * User Rendered Pages 
+ */
+
 // Get specific trip page
 app.get("/trip", async (req, res) => {
   preFlightLog(req);
@@ -268,6 +272,53 @@ app.get("/trip", async (req, res) => {
     handleNotFound(res, req);
   }
 });
+
+// Get home page
+app.get("/", async (req, res) => {
+  preFlightLog(req);
+
+  try {
+    res.render("index", { trips: await tryCacheOrSet("trips", () => getTrips()) });
+  } catch (err) {
+    console.error("Error retrieving trips:", err);
+    handleUnavailable(res, req);
+  }
+});
+
+// Success page
+// TODO: Add a query when transfered here and wait for it to populate then redirect
+app.get("/success", async (req, res) => {
+  preFlightLog(req);
+
+  try {
+    res.render("success", {});
+  } catch (err) {
+    console.log("Failed to render success", err);
+    handleUnavailable(res, req);
+  }
+});
+
+// Create trip GUI
+app.get("/new", async (req, res) => {
+  preFlightLog(req);
+  res.render("new");
+});
+
+// 503 Page
+app.get("/unavailable", async (req, res) => {
+  preFlightLog(req);
+  res.render("unavailable");
+});
+
+// 404 Page
+app.get("/notfound", async (req, res) => {
+  preFlightLog(req);
+  res.render("notfound");
+});
+
+/* 
+ * API Pages
+ */
 
 // Check if a trip exists or not for web endpoint
 // TODO: Move api requests to /api for
@@ -365,49 +416,6 @@ app.post("/add", async (req, res) => {
     console.error("Failed to process tripJSON", err);
     return res.status(400).send("Failed to process tripJSON");
   }
-});
-
-// Get home page
-app.get("/", async (req, res) => {
-  preFlightLog(req);
-
-  try {
-    res.render("index", { trips: await tryCacheOrSet("trips", () => getTrips()) });
-  } catch (err) {
-    console.error("Error retrieving trips:", err);
-    handleUnavailable(res, req);
-  }
-});
-
-// Success page
-// TODO: Add a query when transfered here and wait for it to populate then redirect
-app.get("/success", async (req, res) => {
-  preFlightLog(req);
-
-  try {
-    res.render("success", {});
-  } catch (err) {
-    console.log("Failed to render success", err);
-    handleUnavailable(res, req);
-  }
-});
-
-// Create trip GUI
-app.get("/new", async (req, res) => {
-  preFlightLog(req);
-  res.render("new");
-});
-
-// 503 Page
-app.get("/unavailable", async (req, res) => {
-  preFlightLog(req);
-  res.render("unavailable");
-});
-
-// 404 Page
-app.get("/notfound", async (req, res) => {
-  preFlightLog(req);
-  res.render("notfound");
 });
 
 const PORT = process.env.PORT || 3000;
