@@ -203,7 +203,7 @@ async function populateAndSubmit(tripJSON) {
       throw new Error();
     }
   } catch (err) {
-    console.error("Found a duplicate trip ID", error);
+    console.error("Found a duplicate trip ID", err);
     throw new Error("Trip name already exists");
 
   }
@@ -306,14 +306,13 @@ app.post("/add", async (req, res) => {
   // Try to validate the JSON
   var tripJSON = req.body;
   try {
-    const res = await populateAndSubmit(tripJSON)
-    if (res) {
+    if (await populateAndSubmit(tripJSON)) {
       return res.status(200).send("Submitted tripJSON")
 
     }
   } catch (err) {
     console.error("Failed to process tripJSON", err);
-    return res.status(400).send("Failed to process tripJSON", err);
+    return res.status(400).send("Failed to process tripJSON");
 
   }
 });
