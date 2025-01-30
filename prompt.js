@@ -17,7 +17,8 @@ Use the template below to output your response. You should use *only* this! Do n
 ## As for the specific fields, here are some guidelines
 - id: Make up something fun here, based on the name, date, or location! 
 - name: Make up a fun trip name, based on the itinerary or location!
-- startDate and endDate: The dates either specified or recommended for the trip in a Javascript parseable format (yyyy-mm-dd) but do *not* include time or it will break the parsing
+- startDate and endDate: *For days* he dates must be in a Javascript parseable format (yyyy-mm-dd) but do *not* include time or it will break the parsing, *for stops* this should be in a short format - like 2pm or 8:25am
+- latitude and longitude: These should provide either the exact location of the stop or an overview of the area (e.g. the lat/long for the whole trip)
 - description: A summarization of the itinerary, one paragraph less than 300 Chars
 - pictureSearchTerms: Context for a possible image describing this section, should be only a couple of words for a search engine
 - days: Create a day entry for each day! use the template for how to fill it, and previous lines for the description. Make sure to also include the list of stops for the day, this is important as this is how they will know what to do. Include the other relevant information like dates here too. If you need to save space, days don't need to have their own pictures - you can just include them for the stops.
