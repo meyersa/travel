@@ -321,7 +321,6 @@ app.get("/notfound", async (req, res) => {
  */
 
 // Check if a trip exists or not for web endpoint
-// TODO: Move api requests to /api for
 app.get("/check", async (req, res) => {
   preFlightLog(req);
 
