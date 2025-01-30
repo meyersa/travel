@@ -262,6 +262,27 @@ app.get("/trip", async (req, res) => {
   }
 });
 
+// Check if a trip exists or not for web endpoint
+// TODO: Move api requests to /api for
+app.get("/check", async (req, res) => {
+  preFlightLog(req);
+
+  const { id } = req.query;
+
+  if (!id) {
+    return res.status(400).send("Trip ID is required");
+
+  }
+
+  try {
+    await getTrip(id)
+    return res.status(200).json({exists: true})
+
+  } catch (err) {
+    return res.status(200).json({exists: false})
+
+  }
+})
 
 
 /*
