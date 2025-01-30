@@ -3,6 +3,8 @@
     "name": "Descriptive Name of Trip, less than 300 Char. Should be fun!",
     "startDate": "yyyy-mm-dd",
     "endDate": "yyyy-mm-dd",
+    "lattitude": "Overview of location: E.g. 37.7749",
+    "longitude": "Overview of location: E.g. -122.4194",
     "description": "More in depth description, give some key points! Something that could fill a traveler in on the destination, in less than 300 Char.",
     "pictureSearchTerms": "Search terms for an image to represent this trip!",
     "days": [
