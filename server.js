@@ -275,10 +275,11 @@ app.post("/new", async (req, res) => {
   var tripJSON;
   try {
     tripJSON = await generate(body, OPENAI_KEY)
+    tripJSON = JSON.parse(tripJSON)
 
   } catch (err) {
-    console.error("Failed to query ChatGPT with /add contents")
-    res.status(503).send("Error querying ChatGPT")
+    console.error("Failed to query ChatGPT with /add contents", err)
+    return res.status(503).send("Error querying ChatGPT")
 
   }
 
