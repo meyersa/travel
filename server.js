@@ -119,7 +119,7 @@ async function getTrip(id) {
   return await tryCacheOrSet(id, async () => {
     console.log(`Getting trip information for ${id}`);
     if (!tripsDB) {
-      throw new Error("Mongo not set");
+      throw new Error("Mongo is unavailable");
     }
 
     return await tripsDB.findOne({
@@ -143,6 +143,16 @@ function preFlightLog(req) {
   console.log(output);
 }
 
+async function handleUnavailable(res, req) {
+  console.log(`Received unavailable on ${req.path}. Redirecting...`);
+  return res.redirect("/unavailable");
+}
+
+async function handleNotFound(res, req) {
+  console.log(`Received request on nonexistent page ${res.path}. Redirecting...`);
+  return res.redirect("/notfound");
+}
+
 // Clean and verify an input
 function cleanAndVerify(value, minLength = 5, maxLength = 300) {
   if (!value) {
@@ -163,8 +173,7 @@ function cleanAndVerify(value, minLength = 5, maxLength = 300) {
 async function getTrips() {
   console.log("Getting trips from Mongo");
   if (!tripsDB) {
-    // TODO - get rid of this status send here
-    return res.status(503).send("Service unavailable");
+    throw new Error("Mongo is unavailable");
   }
 
   return await tripsDB
@@ -248,17 +257,15 @@ app.get("/trip", async (req, res) => {
 
   const { id } = req.query;
   if (!id) {
-    // TODO: Add 404 page with option to go home?
-    return res.status(400).send("Trip ID is required");
+    handleNotFound(res, req);
   }
 
   try {
     // Render template with trip data
-    // TODO: Handle 404s, missing trip - swap getTrip to a checkTrip(id) func/return False or something
     res.render("trip", { trip: await getTrip(id) });
   } catch (err) {
     console.error("Failed to get Trip information", err);
-    return res.status(503).send("Service unavailable");
+    handleNotFound(res, req);
   }
 });
 
@@ -288,9 +295,10 @@ app.post("/new", async (req, res) => {
   preFlightLog(req);
 
   // Get form data from the req body
-  var formResp = req.body;
   let where, when, description;
   try {
+    var formResp = req.body;
+
     where = cleanAndVerify(formResp["where"]);
     when = cleanAndVerify(formResp["when"]);
     description = cleanAndVerify(formResp["description"], undefined, 1500);
@@ -347,8 +355,9 @@ app.post("/add", async (req, res) => {
   console.log("Valid API Key");
 
   // Try to validate the JSON
-  var tripJSON = req.body;
   try {
+    var tripJSON = req.body;
+
     if (await populateAndSubmit(tripJSON)) {
       return res.status(200).send("Submitted tripJSON");
     }
@@ -366,22 +375,39 @@ app.get("/", async (req, res) => {
     res.render("index", { trips: await tryCacheOrSet("trips", () => getTrips()) });
   } catch (err) {
     console.error("Error retrieving trips:", err);
-    return res.status(503).send("Service unavailable");
+    handleUnavailable(res, req);
   }
 });
 
 // Success page
 // TODO: Add a query when transfered here and wait for it to populate then redirect
-// TODO: Add endpoint to check if trip exists while returning 200
 app.get("/success", async (req, res) => {
   preFlightLog(req);
-  res.render("success", {});
+
+  try {
+    res.render("success", {});
+  } catch (err) {
+    console.log("Failed to render success", err);
+    handleUnavailable(res, req);
+  }
 });
 
 // Create trip GUI
 app.get("/new", async (req, res) => {
   preFlightLog(req);
   res.render("new");
+});
+
+// 503 Page
+app.get("/unavailable", async (req, res) => {
+  preFlightLog(req);
+  res.render("unavailable");
+});
+
+// 404 Page
+app.get("/notfound", async (req, res) => {
+  preFlightLog(req);
+  res.render("notfound");
 });
 
 const PORT = process.env.PORT || 3000;
