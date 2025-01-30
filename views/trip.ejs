@@ -25,13 +25,12 @@
           <% day.stops.forEach(stop=> { %>
           <div class="box">
             <div>
-              <div class="row">
+              <div class="row" style="align-items: center; justify-content: space-between">
                 <div>
                   <h3><%= stop.startTime %> - <%= stop.endTime %></h3>
                   <h2><span class="fancy"> <%= stop.name %> </span></h2>
                 </div>
-                <!-- TODO: Center this -->
-                <i class="fa-solid fa-map"></i>
+                <a href="https://www.google.com/maps/dir/?api=1&destination=<%= stop.latitude %>,<%= stop.longitude %>"><i class="fa-solid fa-map"></i></a>
               </div>
               <p><%= stop.description %></p>
             </div>
