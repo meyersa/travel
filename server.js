@@ -121,11 +121,11 @@ async function getTrip(id) {
     if (!tripsDB) {
       throw new Error("Mongo not set");
     }
-  
+
     return await tripsDB.findOne({
       id: id,
     });
-  })
+  });
 }
 
 // Basic log for information, can add more with more headers
@@ -271,19 +271,15 @@ app.get("/check", async (req, res) => {
 
   if (!id) {
     return res.status(400).send("Trip ID is required");
-
   }
 
   try {
-    await getTrip(id)
-    return res.status(200).json({exists: true})
-
+    await getTrip(id);
+    return res.status(200).json({ exists: true });
   } catch (err) {
-    return res.status(200).json({exists: false})
-
+    return res.status(200).json({ exists: false });
   }
-})
-
+});
 
 /*
  * Create Trip from Form (When the trip is not already made)
@@ -312,10 +308,9 @@ app.post("/new", async (req, res) => {
     description: description,
   };
 
-  // Check ratelimit 
+  // Check ratelimit
   if (!checkRate()) {
-    return res.status(429).send("Rate limited. Please wait.")
-
+    return res.status(429).send("Rate limited. Please wait.");
   }
 
   var tripJSON;
@@ -388,7 +383,6 @@ app.get("/new", async (req, res) => {
   preFlightLog(req);
   res.render("new");
 });
-
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
