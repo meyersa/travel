@@ -15,9 +15,8 @@ With this information, you should then plan a trip! Adhere to anything they say,
 Use the template below to output your response. You should use *only* this! Do not include any other text. *Collapse (one line with no whitespace)* the JSON so it fits in your response. Do not use Markdown! This should be a plaintext as small as possible format response.
 
 ## As for the specific fields, here are some guidelines
-- id: Make up something fun here, based on the name, date, or location! 
 - name: Make up a fun trip name, based on the itinerary or location!
-- startDate and endDate: *For days* he dates must be in a Javascript parseable format (yyyy-mm-dd) but do *not* include time or it will break the parsing, *for stops* this should be in a short format - like 2pm or 8:25am
+- startDate and endDate: *For days* the dates must be in a Javascript parseable format (yyyy-mm-dd) but do *not* include time or it will break the parsing * ALSO THIS MUST BE THE SAME AMOUNT OF DAYS AS IN THE DAYS ARRAY *, *for stops* this should be in a short format - like 2pm or 8:25am
 - latitude and longitude: These should provide either the exact location of the stop or an overview of the area (e.g. the lat/long for the whole trip)
 - description: A summarization of the itinerary, one paragraph less than 300 Chars
 - pictureSearchTerms: Context for a possible image describing this section, should be only a couple of words for a search engine
