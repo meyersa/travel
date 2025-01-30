@@ -32,6 +32,21 @@ function defaultValidation() {
 }
 defaultValidation();
 
+// Setup Rate Limiter
+let lastExecutionTime = Date.now();
+function checkRate() {
+  const now = Date.now();
+  const fiveMinutes = 5 * 60 * 1000;
+
+  if (now - lastExecutionTime >= fiveMinutes) {
+    console.log(`Allowing execution at ${now}`);
+    lastExecutionTime = now;
+    return true;
+  }
+  console.log(`Denying execution for ${(fiveMinutes - (now - lastExecutionTime)) / 1000} seconds`);
+  return false;
+}
+
 // Setup Mongo Connection
 const options = {
   serverSelectionTimeoutMS: 10000,
@@ -262,16 +277,23 @@ app.post("/new", async (req, res) => {
   } catch (err) {
     console.error("Could not process /new input", err);
     return res.status(400).send("Invalid response to form");
+  } finally {
+    console.log("Form Input Validated");
   }
 
-  console.log("Received valid trip request, submitting to ChatGPT");
+  // Transition to Dictionary
   const body = {
     where: where,
     when: when,
     description: description,
   };
 
-  // TODO: Add some kind of global ratelimit - maybe set default time - if within 5 minutes of that then do not process
+  // Check ratelimit 
+  if (!checkRate()) {
+    return res.status(429).send("Rate limited. Please wait.")
+
+  }
+
   var tripJSON;
   try {
     tripJSON = await generate(body, OPENAI_KEY);
