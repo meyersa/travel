@@ -31,7 +31,7 @@ Generate JSON strictly in **one-line collapsed format**, without any markdown or
 
 #### **Stops Formatting**
 - **startTime & endTime**: Use a concise format ("2pm", "8:30am"). If it's overnight simply put a "-". **Times should not overlap**
-- **overnight**: Boolean indicating whether an overnight stay occurs.
+- **ignorenight**: Boolean indicating whether an overnight stay occurs or in a case where there is simply no end time.
 - **latitude & longitude**: Approximate or exact coordinates.
 - **description**: One-sentence summary of what happens at the stop.
 - **pictureSearchTerms**: A few keywords (e.g., ""Eiffel Tower at night"").

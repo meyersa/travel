@@ -17,7 +17,7 @@
                     "name": "Overview of stop, in less than 300 Char",
                     "startTime": "9am",
                     "endTime": "10am",
-                    "overnight": false,
+                    "ignorenight": false,
                     "latitude": "43.5917",
                     "longitude": "-84.7740",
                     "description": "More in depth description of stop, less than 300 Char",

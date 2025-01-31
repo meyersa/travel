@@ -4,7 +4,7 @@ const stopSchema = z.object({
   name: z.string(),
   startTime: z.string(), // Example: "9am"
   endTime: z.string(), // Example: "10am"
-  overnight: z.boolean(),
+  ignorenight: z.boolean(),
   latitude: z.string(), // Example: "43.5917"
   longitude: z.string(), // Example: "-84.7740"
   description: z.string(),
