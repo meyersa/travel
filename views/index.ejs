@@ -15,6 +15,7 @@
           <div class="spacer"></div>
           <div id="itineraries">
             <div class="boxwrap">
+              <% trips.sort((a, b) => b.id - a.id); %> 
               <% trips.forEach(trip=> { %>
                 <div class="box">
                   <div>
