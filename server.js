@@ -202,7 +202,8 @@ async function getTrips() {
  * 2. Checks for Duplicates
  * 3. Populates Images
  * 4. Inserts into Mongo
- *
+ * 5. Reset trip cache 
+ * 
  * Everything is caught so output can be assumed safe to render to user if wanted
  */
 async function populateAndSubmit(tripJSON) {
@@ -245,11 +246,20 @@ async function populateAndSubmit(tripJSON) {
     }
 
     console.log("Uploaded trip to Mongo");
-    return true;
   } catch (err) {
     console.error("Failed to upload document to Mongo", err);
     throw new Error("Failed to upload document to Mongo");
   }
+
+  try {
+    cache.del("trips")
+
+  } catch (err) {
+    console.error("Failed to delete Trip cache", err)
+  }
+
+  console.log("Finished populating and submitting.")
+  return true
 }
 
 // Handle failure submission 
@@ -304,7 +314,6 @@ app.get("/trip", async (req, res) => {
 });
 
 // Get home page
-// TODO: Sort these by ID
 app.get("/", async (req, res) => {
   preFlightLog(req);
 
@@ -333,6 +342,12 @@ app.get("/success", async (req, res) => {
     console.log("Failed to render success", err);
     handleUnavailable(res, req);
   }
+});
+
+// Fail Page
+app.get("/fail", async (req, res) => {
+  preFlightLog(req);
+  res.render("fail");
 });
 
 // Create trip GUI
@@ -396,7 +411,7 @@ app.post("/api/new", async (req, res) => {
     id = cleanAndVerify(formResp["id"]);
     where = cleanAndVerify(formResp["where"]);
     when = cleanAndVerify(formResp["when"]);
-    description = cleanAndVerify(formResp["description"], undefined, 1500);
+    description = cleanAndVerify(formResp["description"], undefined, 3000);
   } catch (err) {
     console.error("Could not process /new input", err);
     return res.status(400).send("Invalid response to form");
