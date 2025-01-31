@@ -22,7 +22,7 @@ Generate JSON strictly in **one-line collapsed format**, without any markdown or
 - **startDate & endDate**: Must match the number of days in the "days" array and use "yyyy-mm-dd" format.
 - **latitude & longitude**: Provide either a general area (for the trip) or precise locations (for stops).
 - **description**: A single paragraph (under 300 characters) summarizing the trip.
-- **pictureSearchTerms**: A few words describing key imagery for the trip (no full sentences).
+- **pictureSearchTerms**: A few words describing one key image for the trip (no full sentences).
 - **days**: Each day must have:
   - A **name** describing its main theme.
   - A **date** corresponding to the itinerary.
@@ -34,7 +34,16 @@ Generate JSON strictly in **one-line collapsed format**, without any markdown or
 - **ignorenight**: Boolean indicating whether an overnight stay occurs or in a case where there is simply no end time. If you feel a stop shouldn't have an end, use this as well. Importantly, every stop with a stop after must have an endTime. If you aren't given one, make one up.
 - **latitude & longitude**: Approximate or exact coordinates.
 - **description**: One-sentence summary of what happens at the stop.
-- **pictureSearchTerms**: A few keywords (e.g., ""Eiffel Tower at night"").
+- **pictureSearchTerms**: A few keywords (e.g., "Eiffel Tower at night"). This should reflect the destination of the trip - not just the overview.
+
+---
+
+## **When to Include Picture Search Terms**
+- Always include **pictureSearchTerms** for the **main trip image**.
+- For stops:
+  - ✅ **Include** if the stop is a **notable landmark, attraction, or a visually distinct place** (e.g., "Eiffel Tower", "Giant’s Causeway").
+  - ❌ **Omit** for **generic activities or transport** (e.g., "Take a bus", "Go to hotel", "Train ride").
+  - ✅ If a transport stop **does** need an image, use the **destination** (e.g., "Belfast city skyline" instead of "bus to Belfast").
 
 ---
 
@@ -52,4 +61,5 @@ Use the "additional" array to include:
 3. **Adhere to Schema**: Do not deviate from the structured format.
 4. **Assume Logical Defaults**: If details are missing, create a well-balanced itinerary.
 5. **Work appropriate**: If the prompt is not G rated, deny it.
+6. **When to Include Picture Search Terms**: These are optional, except for the main picture. If it's something mundane, like "go to airport" or "ride bus", omit it.
 `;
