@@ -41,6 +41,19 @@
     <%- include('partials/footer') %>
 </body>
 <script>
+  window.onload = function() {
+    // Focus on the where input
+    document.getElementById("where").focus() 
+
+    // Let spacebar submit form
+    document.addEventListener('keydown', function(event) {
+      if (event.keyCode === 32) {
+        event.preventDefault();
+        document.getElementById('button').click();
+      }
+    });
+  }
+
   const button = document.getElementById("button");
 
   function triggerLoadingState() {
@@ -84,8 +97,7 @@
       description: document.getElementById("description").value,
       captcha: turnstileToken
     };
-    // TODO: Focus on Where box
-    // TODO: Enter to submit
+
     fetch('/api/new', {
       method: 'POST',
       headers: {
