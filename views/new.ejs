@@ -106,8 +106,6 @@
       body: JSON.stringify(formData)
     })
       .then(response => {
-        console.log(response)
-
         // Redirect to success page on success
         if (response.ok) {
           window.location.href = `/success?id=${id}`

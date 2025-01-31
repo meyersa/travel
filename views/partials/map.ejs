@@ -24,8 +24,6 @@
   // Loop through stops and add markers
   stops.forEach((stop, index) => {
     if (stop.lat && stop.lng) {
-        console.log(index);
-
       let marker = L.marker([parseFloat(stop.lat), parseFloat(stop.lng)])
         .addTo(map)
         .bindPopup(`<h3>${index + 1}. ${stop.name}</h3><p>${stop.description}</p>`);
