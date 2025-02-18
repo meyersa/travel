@@ -1,21 +1,24 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import { MongoClient } from "mongodb";
 import NodeCache from "node-cache";
 import { validateTrip } from "./lib/validateTrip.js";
 import { populateImages } from "./lib/populateImages.js";
+import { getImage } from "./lib/handleImages.js"
 import { configDotenv } from "dotenv";
 import { generate } from "./lib/queryOpenAI.js";
+import { initMongo } from "./lib/mongo.js";
 configDotenv();
+
+const { MONGO_URL, MONGO_DB, SERVER_KEY, OPENAI_KEY } = process.env;
 
 console.log("Starting server...");
 const app = express();
 const cache = new NodeCache();
 
-const { MONGO_URL, MONGO_DB, SERVER_KEY, OPENAI_KEY } =
-  process.env;
 function defaultValidation() {
+  console.log("Validing ENVs");
+
   if (!MONGO_URL || !MONGO_DB) {
     throw new Error("Missing Mongo ENVs");
   }
@@ -43,35 +46,10 @@ function checkRate() {
   return false;
 }
 
-// Setup Mongo Connection
-const options = {
-  serverSelectionTimeoutMS: 10000,
-};
-
-let tripsDB, failsDB;
-(async () => {
-  try {
-    // Connect to MongoDB
-    console.log("Connecting to MongoDB...");
-    const client = await MongoClient.connect(MONGO_URL, options);
-    console.log("Connected to MongoDB");
-
-    // Connect to specified DB
-    console.log("Connecting to specified database");
-    const db = client.db(MONGO_DB);
-
-    console.log("Connecting to specified collection");
-    tripsDB = db.collection("trips");
-    failsDB = db.collection("fails");
-
-    console.log("Mongo is ready...");
-  } catch (e) {
-    console.error("Unable to connect to MongoDB, ignore if this was during initial build", e);
-    process.exit(1);
-  }
-
-  console.log(`Startup finished \n\n\n`);
-})();
+const db = await initMongo(MONGO_URL, MONGO_DB);
+const tripsDB = db.collection("trips");
+const failsDB = db.collection("fails");
+const imagesDB = db.collection("images");
 
 // Setup template engine, view (template) dir, and asset route
 app.set("view engine", "ejs");
@@ -198,8 +176,8 @@ async function getTrips() {
  * 2. Checks for Duplicates
  * 3. Populates Images
  * 4. Inserts into Mongo
- * 5. Reset trip cache 
- * 
+ * 5. Reset trip cache
+ *
  * Everything is caught so output can be assumed safe to render to user if wanted
  */
 async function populateAndSubmit(tripJSON) {
@@ -226,7 +204,7 @@ async function populateAndSubmit(tripJSON) {
 
   // 3. Populate Images
   try {
-    tripJSON = await populateImages(OPENAI_KEY, tripJSON);
+    tripJSON = await populateImages(OPENAI_KEY, tripJSON, imagesDB);
   } catch (err) {
     console.error("Failed to populate images from google", err);
     throw new Error("Failed to populate images from google");
@@ -248,28 +226,25 @@ async function populateAndSubmit(tripJSON) {
   }
 
   try {
-    cache.del("trips")
-
+    cache.del("trips");
   } catch (err) {
-    console.error("Failed to delete Trip cache", err)
+    console.error("Failed to delete Trip cache", err);
   }
 
-  console.log("Finished populating and submitting.")
-  return true
+  console.log("Finished populating and submitting.");
+  return true;
 }
 
-// Handle failure submission 
+// Handle failure submission
 async function populateFail(id) {
-  console.log(`Failured received when creating trip ${id}`)
+  console.log(`Failured received when creating trip ${id}`);
 
   try {
-    await failsDB.insertOne({id: id})
+    await failsDB.insertOne({ id: id });
 
-    console.log(`Uploaded failure to Mongo ${id}`)
-
+    console.log(`Uploaded failure to Mongo ${id}`);
   } catch (err) {
-    console.error(`Failed to upload failure (ironic) to Mongo ${id}`)
-  
+    console.error(`Failed to upload failure (ironic) to Mongo ${id}`);
   }
 }
 
@@ -287,8 +262,8 @@ async function getFail(id) {
   });
 }
 
-/* 
- * User Rendered Pages 
+/*
+ * User Rendered Pages
  */
 
 // Get specific trip page
@@ -331,7 +306,6 @@ app.get("/success", async (req, res) => {
     handleNotFound(res, req);
   }
 
-
   try {
     res.render("success");
   } catch (err) {
@@ -364,7 +338,7 @@ app.get("/notfound", async (req, res) => {
   res.render("notfound");
 });
 
-/* 
+/*
  * API Pages
  */
 
@@ -384,11 +358,9 @@ app.get("/api/check", async (req, res) => {
     // Doesn't exist then check fails
     try {
       await getFail(id);
-      return res.status(200).json({ state: "fail" })
-
+      return res.status(200).json({ state: "fail" });
     } catch (err) {
       return res.status(200).json({ state: "no" });
-
     }
   }
 });
@@ -427,18 +399,16 @@ app.post("/api/new", async (req, res) => {
     return res.status(429).send("Rate limited. Please wait.");
   }
 
-  res.status(200).send("Success")
+  res.status(200).send("Success");
 
   var tripJSON;
   try {
     tripJSON = await generate(body, OPENAI_KEY);
     tripJSON = JSON.parse(tripJSON);
     tripJSON["id"] = id;
-
   } catch (err) {
     console.error("Failed to query ChatGPT with /add contents", err);
-    await populateFail(id)
-
+    await populateFail(id);
   }
 
   try {
@@ -446,8 +416,7 @@ app.post("/api/new", async (req, res) => {
     }
   } catch (err) {
     console.error("Failed to process tripJSON", err);
-    await populateFail(id) 
-    
+    await populateFail(id);
   }
 });
 
@@ -470,7 +439,7 @@ app.post("/api/add", async (req, res) => {
     var tripJSON = req.body;
 
     // Add ID based on submission time
-    tripJSON["id"] = String(Date.now())
+    tripJSON["id"] = String(Date.now());
 
     if (await populateAndSubmit(tripJSON)) {
       return res.status(200).send("Submitted tripJSON");
@@ -481,6 +450,32 @@ app.post("/api/add", async (req, res) => {
   }
 });
 
+/*
+ * Get an image by ID
+ */
+app.get("/api/image", async (req, res) => {
+  preFlightLog(req);
+
+  const { id } = req.query;
+  if (!id) {
+    return res.status(400).send("Image ID is required");
+  }
+
+  try {
+    const buffer = await getImage(imagesDB, id);
+
+    if (!buffer) {
+      res.status(404).send("Image not found");
+    }
+
+    // Set content type
+    res.setHeader("Content-Type", "image/png");
+    res.send(buffer);
+  } catch (err) {
+    console.error("Failed to retrieve image", err);
+    return res.status(500).send("Error retrieving image");
+  }
+});
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
