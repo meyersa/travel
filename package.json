@@ -5,6 +5,7 @@
     "dotenv": "^16.4.7",
     "ejs": "^3.1.10",
     "express": "^4.21.2",
+    "gridfs-stream": "^1.1.1",
     "mongodb": "^6.12.0",
     "node-cache": "^5.1.2",
     "openai": "^4.81.0",
