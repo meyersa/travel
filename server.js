@@ -13,15 +13,11 @@ console.log("Starting server...");
 const app = express();
 const cache = new NodeCache();
 
-const { MONGO_URL, MONGO_DB, GOOGLE_CONSOLE_ID, GOOGLE_API_KEY, SERVER_KEY, OPENAI_KEY } =
+const { MONGO_URL, MONGO_DB, SERVER_KEY, OPENAI_KEY } =
   process.env;
 function defaultValidation() {
   if (!MONGO_URL || !MONGO_DB) {
     throw new Error("Missing Mongo ENVs");
-  }
-
-  if (!GOOGLE_CONSOLE_ID || !GOOGLE_API_KEY) {
-    throw new Error("Missing Google ENVs");
   }
 
   if (!SERVER_KEY) {
@@ -230,7 +226,7 @@ async function populateAndSubmit(tripJSON) {
 
   // 3. Populate Images
   try {
-    tripJSON = await populateImages(GOOGLE_CONSOLE_ID, GOOGLE_API_KEY, tripJSON);
+    tripJSON = await populateImages(OPENAI_KEY, tripJSON);
   } catch (err) {
     console.error("Failed to populate images from google", err);
     throw new Error("Failed to populate images from google");

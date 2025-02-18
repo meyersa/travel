@@ -9,7 +9,7 @@
     <%- include('partials/header') %>
     <content>
       <!-- Main Trip Banner Section -->
-      <%- include('partials/attention', {title: trip.name, pictureUrl: trip.picture.pictureUrl}) %>
+      <%- include('partials/attention', {title: trip.name, pictureUrl: trip.picture}) %>
 
       <p><%= trip.description %></p>
 
@@ -34,10 +34,9 @@
               </div>
               <p><%= stop.description %></p>
             </div>
-            <% if (stop && stop.picture && stop.picture.pictureUrl) { %>
+            <% if (stop && stop.picture) { %>
             <div>
-              <img src="<%= stop.picture.pictureUrl %>" alt="<%= stop.name %>" />
-              <small> <%= stop.picture.source %> </small>
+              <img src="<%= stop.picture %>" alt="<%= stop.name %>" />
             </div>
             <% } %>
           </div>
@@ -67,9 +66,9 @@
                 <% }) %>
               </ul>
             </div>
-            <% if (add && add.picture && add.picture.pictureUrl) { %>
+            <% if (add && add.picture) { %>
             <div>
-              <img src="<%= add.picture.pictureUrl %>" alt="<%= add.title %>" />
+              <img src="<%= add.picture %>" alt="<%= add.title %>" />
               <small> <%= add.picture.source %> </small>
             </div>
             <% } %>

@@ -15,7 +15,5 @@ Clone repository and run `npm i` to install necessary packages
 Some ENVs will also need to be set (optionally in a .env at the root)
 - MONGO_DB=database to use
 - MONGO_URL=mongodb://user:pass@host:27017/
-- GOOGLE_CONSOLE_ID=Search console ID
-- GOOGLE_API_KEY=API key for search console
 - SERVER_KEY=Basic API key to use for securing connection
 - OPENAI_KEY=Key for OpenAPI
