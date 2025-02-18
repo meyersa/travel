@@ -470,7 +470,7 @@ app.post("/api/add", async (req, res) => {
     var tripJSON = req.body;
 
     // Add ID based on submission time
-    tripJSON["id"] = Date.now() 
+    tripJSON["id"] = String(Date.now())
 
     if (await populateAndSubmit(tripJSON)) {
       return res.status(200).send("Submitted tripJSON");
