@@ -48,11 +48,12 @@ Generate JSON strictly in **one-line collapsed format**, without any markdown or
 ---
 
 ## **Additional Information**
-Use the "additional" array to include:
+1. Use the "additional" array to include:
 - **Other attractions** not included in the main itinerary.
 - **Warnings** (e.g., crime risks, traffic conditions).
 - **Special considerations** (e.g., required gear, weather concerns).
-
+2. Include travel time! Such as the time it takes to get through an airport, get bags, drive somewhere, etc. 
+3. Also include things like eating lunch, if there are good recommendations then you can list that 
 ---
 
 ## **Rules to Follow**
