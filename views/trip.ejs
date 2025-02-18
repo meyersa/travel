@@ -27,7 +27,11 @@
             <div>
               <div class="row" style="align-items: center; justify-content: space-between">
                 <div>
-                  <h3><%= stop.startTime %> - <%= stop.endTime %></h3>
+                  <% if (stop.endTime == "-") { %>
+                    <h3><%= stop.startTime %> - Overnight</h3>
+                  <% } else { %>
+                    <h3><%= stop.startTime %> - <%= stop.endTime %></h3>
+                  <% } %>
                   <h2><span class="fancy"> <%= stop.name %> </span></h2>
                 </div>
                 <a href="https://www.google.com/maps/dir/?api=1&destination=<%= stop.latitude %>,<%= stop.longitude %>"><i class="fa-solid fa-map"></i></a>
