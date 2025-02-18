@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 import NodeCache from "node-cache";
 import { validateTrip } from "./lib/validateTrip.js";
 import { populateImages } from "./lib/populateImages.js";
-import { getImage } from "./lib/handleImages.js"
+import { getImage } from "./lib/handleImages.js";
 import { configDotenv } from "dotenv";
 import { generate } from "./lib/queryOpenAI.js";
 import { initMongo } from "./lib/mongo.js";
@@ -49,7 +49,6 @@ function checkRate() {
 const db = await initMongo(MONGO_URL, MONGO_DB);
 const tripsDB = db.collection("trips");
 const failsDB = db.collection("fails");
-const imagesDB = db.collection("images");
 
 // Setup template engine, view (template) dir, and asset route
 app.set("view engine", "ejs");
@@ -204,7 +203,7 @@ async function populateAndSubmit(tripJSON) {
 
   // 3. Populate Images
   try {
-    tripJSON = await populateImages(OPENAI_KEY, tripJSON, imagesDB);
+    tripJSON = await populateImages(OPENAI_KEY, tripJSON, db);
   } catch (err) {
     console.error("Failed to populate images from google", err);
     throw new Error("Failed to populate images from google");
@@ -453,7 +452,7 @@ app.post("/api/add", async (req, res) => {
 /*
  * Get an image by ID
  */
-app.get("/api/image", async (req, res) => {
+app.get("/api/images", async (req, res) => {
   preFlightLog(req);
 
   const { id } = req.query;
@@ -462,7 +461,7 @@ app.get("/api/image", async (req, res) => {
   }
 
   try {
-    const buffer = await getImage(imagesDB, id);
+    const buffer = await getImage(db, id);
 
     if (!buffer) {
       res.status(404).send("Image not found");
@@ -476,6 +475,7 @@ app.get("/api/image", async (req, res) => {
     return res.status(500).send("Error retrieving image");
   }
 });
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

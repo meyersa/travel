@@ -147,6 +147,8 @@ content {
   aspect-ratio: 16/9;
   max-height: 30vh;
   border-radius: calc(var(--space) / 2);
+  object-fit: cover;
+  
 }
 
 .row {
