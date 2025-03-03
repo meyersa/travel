@@ -5,12 +5,11 @@ import NodeCache from "node-cache";
 import { getImage } from "./lib/storage/images.js";
 import { configDotenv } from "dotenv";
 import { generate } from "./lib/openAI/queryOpenAI.js";
-import { initMongo } from "./lib/storage/mongo.js";
 import { preFlightLog, cleanAndVerify } from "./lib/util.js";
 import { getTrip, getTrips, getFail, populateFail, populateAndSubmit } from "./lib/storage/trips.js";
 configDotenv();
 
-const { MONGO_URL, MONGO_DB, SERVER_KEY, OPENAI_KEY } = process.env;
+const { SERVER_KEY } = process.env;
 
 console.log("Starting server...");
 const app = express();
@@ -36,8 +35,6 @@ function checkRate() {
   console.log(`Denying execution for ${(fiveMinutes - (now - lastExecutionTime)) / 1000} seconds`);
   return false;
 }
-
-const db = await initMongo(MONGO_URL, MONGO_DB);
 
 // Setup template engine, view (template) dir, and asset route
 app.set("view engine", "ejs");
@@ -222,7 +219,7 @@ app.post("/api/new", async (req, res) => {
 
   var tripJSON;
   try {
-    tripJSON = await generate(body, OPENAI_KEY);
+    tripJSON = await generate(body);
     tripJSON = JSON.parse(tripJSON);
     tripJSON["id"] = id;
   } catch (err) {
@@ -281,7 +278,7 @@ app.get("/api/images", async (req, res) => {
   }
 
   try {
-    const buffer = await getImage(db, id);
+    const buffer = await getImage(id);
 
     if (!buffer) {
       res.status(404).send("Image not found");
