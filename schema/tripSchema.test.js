@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { tripSchema } from "./tripJSON";
+import { tripSchema } from "./tripSchema.js";
 import example from "../example.json" assert { type: "json" };
 import { ZodError } from "zod";
 
