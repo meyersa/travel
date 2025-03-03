@@ -27,6 +27,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Run tests
+      - name: Run Code Tests 
+        run: npm run test
+        
       # Build and push the Docker image
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
