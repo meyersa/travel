@@ -2,11 +2,11 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import NodeCache from "node-cache";
-import { getImage } from "./lib/storage/images.js";
+import { getImage } from "./lib/mongo/images.js";
 import { configDotenv } from "dotenv";
-import { generate } from "./lib/openAI/queryOpenAI.js";
+import { generate } from "./lib/openAI/generateTrip.js";
 import { preFlightLog, cleanAndVerify } from "./lib/util.js";
-import { getTrip, getTrips, getFail, populateFail, populateAndSubmit } from "./lib/storage/trips.js";
+import { getTrip, getTrips, getFail, populateFail, populateAndSubmit } from "./lib/mongo/trips.js";
 configDotenv();
 
 const { SERVER_KEY } = process.env;
@@ -205,6 +205,7 @@ app.post("/api/new", async (req, res) => {
 
   // Transition to Dictionary
   const body = {
+    id: id,
     where: where,
     when: when,
     description: description,
@@ -221,7 +222,6 @@ app.post("/api/new", async (req, res) => {
   try {
     tripJSON = await generate(body);
     tripJSON = JSON.parse(tripJSON);
-    tripJSON["id"] = id;
   } catch (err) {
     console.error("Failed to query ChatGPT with /add contents", err);
     await populateFail(id);
