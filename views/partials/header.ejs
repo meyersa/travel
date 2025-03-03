@@ -2,9 +2,21 @@
   <div class="right">
     <h2><a href="/">trip planner</a></h2>
   </div>
-  <div class="left" onclick="newPage()">
-    <i class="fa-solid fa-plus"></i>
-  </div>
+  <!-- For a trip page -->
+   <!-- TODO: Implement handlers for these -->
+  <% if (typeof options !== 'undefined' && options) { %>
+    <div class="page-options">
+      <i class="fa-solid fa-images"></i>
+      <i class="fa-solid fa-rotate-right"></i>
+      <i class="fa-solid fa-pen-to-square"></i>
+      <i class="fa-solid fa-trash"></i>
+    </div>
+  <!-- New button still -->
+  <% } else { %>
+    <div class="left" onclick="newPage()">
+      <i class="fa-solid fa-plus"></i>
+    </div>
+  <% } %>
   <script>
     function newPage() { window.location.href = "/new"; }
   </script>
@@ -34,6 +46,17 @@
     .left:hover {
       cursor: pointer;
       background-color: var(--blue);
+    }
+
+    .page-options {
+      background-color: var(--purple);
+      padding: calc(var(--space) / 2) var(--space);
+      border-radius: var(--space);
+    }
+
+    .options > i {
+      font-size: 1.25rem;
+      margin: .25rem;
     }
   </style>
 </header>
