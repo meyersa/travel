@@ -1,19 +1,18 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import NodeCache from "node-cache";
 import { getImage } from "./lib/mongo/images.js";
 import { configDotenv } from "dotenv";
-import { generate } from "./lib/openAI/generateTrip.js";
+import { generateTrip } from "./lib/openAI/generateTrip.js";
 import { preFlightLog, cleanAndVerify } from "./lib/util.js";
-import { getTrip, getTrips, getFail, populateFail, populateAndSubmit } from "./lib/mongo/trips.js";
+import { getTripById, getTrips, getFail, populateFail } from "./lib/mongo/trips.js";
+import { newTrip } from "./schema/newTrip.js";
 configDotenv();
 
 const { SERVER_KEY } = process.env;
 
 console.log("Starting server...");
 const app = express();
-const cache = new NodeCache();
 
 console.log("Validing ENVs");
 if (!SERVER_KEY) {
@@ -43,31 +42,6 @@ app.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), "
 app.use(express.json());
 console.log("Setup default routes");
 
-// Tries to pull a value from cache or uses a function to set it
-async function tryCacheOrSet(name, valueFunction, cacheLength = 3600) {
-  const cleanName = String(name).toLowerCase().trim();
-  // Standardize all names with lowercase, might cause issues if there are dups
-
-  var cacheRes = await cache.get(cleanName);
-
-  if (cacheRes) {
-    console.log(`Cache hit for ${cleanName}`);
-    return cacheRes;
-  }
-
-  console.log(`Cache miss for ${cleanName}`);
-
-  var newRes = await valueFunction();
-
-  if (!newRes) {
-    throw new Error("Value is empty after filling");
-  }
-
-  cache.set(cleanName, newRes, cacheLength);
-  console.log(`Cache set for ${cleanName}`);
-  return newRes;
-}
-
 async function handleUnavailable(res, req) {
   console.log(`Received unavailable on ${req.path}. Redirecting...`);
   return res.redirect("/unavailable");
@@ -93,7 +67,7 @@ app.get("/trip", async (req, res) => {
 
   try {
     // Render template with trip data
-    res.render("trip", { trip: await getTrip(id) });
+    res.render("trip", { trip: await getTripById(id) });
   } catch (err) {
     console.error("Failed to get Trip information", err);
     handleNotFound(res, req);
@@ -105,7 +79,7 @@ app.get("/", async (req, res) => {
   preFlightLog(req);
 
   try {
-    res.render("index", { trips: await tryCacheOrSet("trips", () => getTrips()) });
+    res.render("index", { trips: await getTrips() });
   } catch (err) {
     console.error("Error retrieving trips:", err);
     handleUnavailable(res, req);
@@ -168,7 +142,7 @@ app.get("/api/check", async (req, res) => {
   }
 
   try {
-    await getTrip(id);
+    await getTripById(id);
     return res.status(200).json({ state: "exists" });
   } catch (err) {
     // Doesn't exist then check fails
@@ -188,28 +162,20 @@ app.post("/api/new", async (req, res) => {
   preFlightLog(req);
 
   // Get form data from the req body
-  let id, where, when, description;
+  let body;
   try {
-    var formResp = req.body;
-
-    id = cleanAndVerify(formResp["id"]);
-    where = cleanAndVerify(formResp["where"]);
-    when = cleanAndVerify(formResp["when"]);
-    description = cleanAndVerify(formResp["description"], undefined, 3000);
+    body = newTrip.parse({
+      id: cleanAndVerify(formResp["id"]),
+      where: cleanAndVerify(formResp["where"]),
+      when: cleanAndVerify(formResp["when"]),
+      description: cleanAndVerify(formResp["description"], undefined, 3000),
+    });
   } catch (err) {
     console.error("Could not process /new input", err);
     return res.status(400).send("Invalid response to form");
   } finally {
     console.log("Form Input Validated");
   }
-
-  // Transition to Dictionary
-  const body = {
-    id: id,
-    where: where,
-    when: when,
-    description: description,
-  };
 
   // Check ratelimit
   if (!checkRate()) {
@@ -220,8 +186,7 @@ app.post("/api/new", async (req, res) => {
 
   var tripJSON;
   try {
-    tripJSON = await generate(body);
-    tripJSON = JSON.parse(tripJSON);
+    tripJSON = await generateTrip(body);
   } catch (err) {
     console.error("Failed to query ChatGPT with /add contents", err);
     await populateFail(id);
