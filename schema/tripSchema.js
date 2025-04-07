@@ -6,7 +6,7 @@ const textSchema = z.string().min(5).max(300);
 const dateSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (yyyy-mm-dd)");
 const latLongSchema = z.string().regex(/^-?\d+(\.\d+)?$/, "Invalid latitude/longitude");
 const timeSchema = z.string().regex(/^(-|0?[1-9]|1[0-2])(:[0-5][0-9])?\s?(am|pm)?$/i, "Invalid time format (e.g., '9am' or '-')");
-
+const pictureSchema = z.string().min(5).max(150).optional()
 
 // Stop Schema
 const stopSchema = z.object({
@@ -18,6 +18,7 @@ const stopSchema = z.object({
   longitude: latLongSchema,
   description: textSchema,
   pictureSearchTerms: z.string().optional(),
+  picture: pictureSchema,
 });
 
 // Day Schema
@@ -32,6 +33,7 @@ const daySchema = z.object({
 const additionalInfoSchema = z.object({
   title: textSchema,
   pictureSearchTerms: z.string().optional(),
+  picture: pictureSchema,
   points: z.array(textSchema).min(1),
 });
 
@@ -45,6 +47,7 @@ const tripSchema = z.object({
   longitude: latLongSchema,
   description: textSchema,
   pictureSearchTerms: textSchema,
+  picture: pictureSchema,
   days: z.array(daySchema).min(1),
   additional: z.array(additionalInfoSchema).optional(),
 });
