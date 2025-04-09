@@ -7,18 +7,19 @@ import { preFlightLog, cleanAndVerify } from "./lib/util.js";
 import { getTripById, getTrips, getFail, populateFail } from "./lib/mongo/trips.js";
 import { newTrip } from "./schema/newTrip.js";
 import { createTrip } from "./lib/tripInterface.js";
-configDotenv();
+import { logger } from "./lib/logger.js";
 
+configDotenv();
 const { SERVER_KEY } = process.env;
 
-console.log("Starting server...");
+logger.info("Starting server...");
 const app = express();
 
-console.log("Validing ENVs");
+logger.info("Validing ENVs");
 if (!SERVER_KEY) {
   throw new Error("Missing Server API Key");
 }
-console.log("Validated default variables");
+logger.info("Validated default variables");
 
 // Setup Rate Limiter
 let lastExecutionTime = 0;
@@ -27,11 +28,11 @@ function checkRate() {
   const fiveMinutes = 5 * 60 * 1000;
 
   if (now - lastExecutionTime >= fiveMinutes) {
-    console.log(`Allowing execution at ${now}`);
+    logger.debug(`Allowing execution at ${now}`);
     lastExecutionTime = now;
     return true;
   }
-  console.log(`Denying execution for ${(fiveMinutes - (now - lastExecutionTime)) / 1000} seconds`);
+  logger.debug(`Denying execution for ${(fiveMinutes - (now - lastExecutionTime)) / 1000} seconds`);
   return false;
 }
 
@@ -40,15 +41,15 @@ app.set("view engine", "ejs");
 app.set("views", path.join(path.dirname(fileURLToPath(import.meta.url)), "views"));
 app.use(express.static(path.join(path.dirname(fileURLToPath(import.meta.url)), "assets")));
 app.use(express.json());
-console.log("Setup default routes");
+logger.info("Setup default routes");
 
 async function handleUnavailable(res, req) {
-  console.log(`Received unavailable on ${req.path}. Redirecting...`);
+  logger.warn(`Received unavailable on ${req.path}. Redirecting...`);
   return res.redirect("/unavailable");
 }
 
 async function handleNotFound(res, req) {
-  console.log(`Received request on nonexistent page ${res.path}. Redirecting...`);
+  logger.warn(`Received request on nonexistent page ${res.path}. Redirecting...`);
   return res.redirect("/notfound");
 }
 
@@ -69,7 +70,7 @@ app.get("/trip", async (req, res) => {
     // Render template with trip data
     res.render("trip", { trip: await getTripById(id) });
   } catch (err) {
-    console.error("Failed to get Trip information", err);
+    logger.error("Failed to get Trip information", err);
     handleNotFound(res, req);
   }
 });
@@ -81,7 +82,7 @@ app.get("/", async (req, res) => {
   try {
     res.render("index", { trips: await getTrips() });
   } catch (err) {
-    console.error("Error retrieving trips:", err);
+    logger.error("Error retrieving trips:", err);
     handleUnavailable(res, req);
   }
 });
@@ -99,7 +100,7 @@ app.get("/success", async (req, res) => {
   try {
     res.render("success");
   } catch (err) {
-    console.log("Failed to render success", err);
+    logger.warn("Failed to render success", err);
     handleUnavailable(res, req);
   }
 });
@@ -143,19 +144,19 @@ app.get("/api/check", async (req, res) => {
 
   const trip = await getTripById(id);
   if (trip) {
-    console.log("Trip exists")
+    logger.debug("Trip exists")
     return res.status(200).json({ state: "exists" });
 
   } 
 
   const fail = await getFail(id);
   if (fail) {
-    console.log("Trip Failed")
+    logger.debug("Trip Failed")
     return res.status(200).json({ state: "fail" });
 
   }
 
-  console.log("Trip does not exist")
+  logger.debug("Trip does not exist")
   return res.status(200).json({ state: "no" });
 });
 
@@ -171,10 +172,10 @@ app.post("/api/new", async (req, res) => {
       description: cleanAndVerify(req.body["description"], undefined, 3000),
     });
   } catch (err) {
-    console.error("Could not process /new input", err);
+    logger.error("Could not process /new input", err);
     return res.status(400).send("Invalid response to form");
   } finally {
-    console.log("Form Input Validated");
+    logger.debug("Form Input Validated");
   }
 
   // Check ratelimit
@@ -188,7 +189,7 @@ app.post("/api/new", async (req, res) => {
   try {
     tripJSON = await createTrip(body);
   } catch (err) {
-    console.error("Unable to create trip", err);
+    logger.error("Unable to create trip", err);
     await populateFail(id);
   }
 });
@@ -200,10 +201,10 @@ app.post("/api/add", async (req, res) => {
   // Verify API Key
   const IN_KEY = req.get("X-API-Key");
   if (IN_KEY != SERVER_KEY) {
-    console.error("Invalid API Key", IN_KEY);
+    logger.warn("Invalid API Key", IN_KEY);
     return res.status(401).send("Unauthorized");
   }
-  console.log("Valid API Key");
+  logger.debug("Valid API Key");
 
   // Try to validate the JSON
   try {
@@ -216,7 +217,7 @@ app.post("/api/add", async (req, res) => {
       return res.status(200).send("Submitted tripJSON");
     }
   } catch (err) {
-    console.error("Failed to process tripJSON", err);
+    logger.error("Failed to process tripJSON", err);
     return res.status(400).send("Failed to process tripJSON");
   }
 });
@@ -241,12 +242,12 @@ app.get("/api/images", async (req, res) => {
     res.setHeader("Content-Type", "image/png");
     res.send(buffer);
   } catch (err) {
-    console.error("Failed to retrieve image", err);
+    logger.error("Failed to retrieve image", err);
     return res.status(500).send("Error retrieving image");
   }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  logger.info(`Server running on port ${PORT}`);
 });
