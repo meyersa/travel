@@ -169,14 +169,14 @@ app.post("/api/new", async (req, res) => {
   try {
     body = newTrip.parse({
       id: cleanAndVerify(req.body["id"]),
-      description: cleanAndVerify(req.body["description"], undefined, 3000),
+      description: cleanAndVerify(req.body["description"]),
     });
   } catch (err) {
-    logger.error("Could not process /new input", err);
+    logger.error(err, "Could not process /new input");
     return res.status(400).send("Invalid response to form");
-  } finally {
-    logger.debug("Form Input Validated");
   }
+
+  logger.debug("Form Input Validated");
 
   // Check ratelimit
   if (!checkRate()) {
