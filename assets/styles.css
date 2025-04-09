@@ -98,7 +98,7 @@ content {
   box-sizing: border-box;
   margin: 0 auto;
   padding: var(--space);
-  width: calc(100vw - 4 * var(--space));
+  width: 100%;
   max-width: 1000px;
   height: 60vh;
   border-radius: var(--space);
@@ -119,10 +119,10 @@ content {
 }
 
 .box {
-  box-shadow: var(--boxshadow);
+  border: solid 1px var(--dark-blue);
   max-height: 60vh;
   min-height: 20vh;
-  padding: var(--space);
+  padding: 0 var(--space);
   width: 100%;
   max-width: 400px;
   border-radius: calc(var(--space) / 2);

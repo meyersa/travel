@@ -22,16 +22,8 @@
         </div>
         <div class="options">
           <div>
-            <label for="where">Where?</label>
-            <input type="text" id="where" name="where" placeholder="Where do you want to go?" required />
-          </div>
-          <div>
-            <label for="when">When?</label>
-            <input type="text" id="when" name="when" placeholder="When do you want to go?" required />
-          </div>
-          <div>
             <label for="description">Description?</label>
-            <textarea id="description" name="description" placeholder="What do you want to see?" required></textarea>
+            <textarea id="description" name="description" placeholder="What do you want to see? When do you want to do it? Where do you want to go?" required></textarea>
           </div>
           <div class="cf-turnstile" data-sitekey="0x4AAAAAAA5cXTEg4yKF4kki" data-size="flexible"></div>
         </div>
@@ -92,8 +84,6 @@
     const id = Date.now()
     const formData = {
       id: id,
-      where: document.getElementById("where").value,
-      when: document.getElementById("when").value,
       description: document.getElementById("description").value,
       captcha: turnstileToken
     };

@@ -1,3 +1,9 @@
+/**
+ * A more basic version of tripSchema.js
+ * Since OpenAI doesn't support full Zod output, 
+ * this will act as the validator
+ */
+
 import { z } from "zod";
 
 const stopSchema = z.object({
@@ -24,7 +30,7 @@ const additionalInfoSchema = z.object({
   points: z.array(z.string()),
 });
 
-const tripSchema = z.object({
+const openAISchema = z.object({
   name: z.string(),
   startDate: z.string(), // Format: yyyy-mm-dd
   endDate: z.string(), // Format: yyyy-mm-dd
@@ -36,4 +42,4 @@ const tripSchema = z.object({
   additional: z.array(additionalInfoSchema).optional(), // Optional additional info
 });
 
-export { tripSchema };
+export { openAISchema };

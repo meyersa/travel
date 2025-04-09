@@ -25,7 +25,7 @@
           <% day.stops.forEach(stop=> { %>
           <div class="box">
             <div>
-              <div class="row" style="align-items: center; justify-content: space-between">
+              <div class="row" style="align-items: flex-start; justify-content: space-between">
                 <div>
                   <% if (stop.endTime == "-") { %>
                     <h3><%= stop.startTime %> - Overnight</h3>
