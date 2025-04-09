@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { newTrip } from "./newTrip";
 
 // Helper schemas
 const idSchema = z.string().min(5).max(150).regex(/^\S+$/, "ID cannot contain spaces");
@@ -50,4 +51,5 @@ export const tripSchema = z.object({
   picture: pictureSchema,
   days: z.array(daySchema).min(1),
   additional: z.array(additionalInfoSchema).optional(),
+  newTrip: newTrip.optional()
 });
