@@ -22,10 +22,13 @@
         </div>
         <div class="options">
           <div>
-            <label for="description">Description?</label>
-            <textarea id="description" name="description" placeholder="What do you want to see? When do you want to do it? Where do you want to go?" required></textarea>
+            <label for="description">Description</label>
+            <textarea id="description" style="min-height: 5rem" name="description" placeholder="What do you want to see? When do you want to do it? Where do you want to go?" required></textarea>
           </div>
-          <div class="cf-turnstile" data-sitekey="0x4AAAAAAA5cXTEg4yKF4kki" data-size="flexible"></div>
+          <div>
+            <label for="description">Auth</label>
+            <textarea id="auth" name="auth" placeholder="Provided authorization code." required></textarea>
+          </div>
         </div>
         <button id="button" type="button" onclick="submitForm()">Submit</button>
       </form>
@@ -35,7 +38,7 @@
 <script>
   window.onload = function() {
     // Focus on the where input
-    document.getElementById("where").focus() 
+    document.getElementById("description").focus() 
 
     // Let enter submit form
     document.addEventListener('keydown', function(event) {
@@ -72,20 +75,13 @@
   }
 
   function submitForm() {
-    const turnstileToken = document.querySelector('.cf-turnstile [name="cf-turnstile-response"]').value;
-
-    if (!turnstileToken) {
-      alert("Please complete the CAPTCHA.");
-      return;
-    }
-
     triggerLoadingState()
 
     const id = Date.now()
     const formData = {
       id: id,
       description: document.getElementById("description").value,
-      captcha: turnstileToken
+      auth: document.getElementById("auth").value
     };
 
     fetch('/api/new', {
@@ -132,12 +128,6 @@
 
   .shake {
     animation: shake 0.5s;
-  }
-
-  .cf-turnstile {
-    display: block !important;
-    margin: var(--space) 0;
-
   }
 
   #tripForm {
