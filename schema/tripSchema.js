@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { newTrip } from "./newTrip";
+import { newTrip } from "./newTrip.js";
 
 // Helper schemas
 const idSchema = z.string().min(5).max(150).regex(/^\S+$/, "ID cannot contain spaces");
