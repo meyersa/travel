@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title><%= trip.name %> - trip planner</title>
+    <title><%= trip.name.toUpperCase() %></title>
     <%- include('partials/head') %>
   </head>
 
@@ -27,11 +27,15 @@
             <div>
               <div class="row" style="align-items: flex-start; justify-content: space-between">
                 <div>
-                  <% if (stop.endTime == "-") { %>
+                  <% if (stop.startTime == "-" && stop.endTime == "-") { %>
+                    <!-- Do not include h3 at all -->
+                  <% } else if (stop.startTime == "-") { %>
+                    <h3>- Overnight</h3>
+                  <% } else if (stop.endTime == "-") { %>
                     <h3><%= stop.startTime %> - Overnight</h3>
                   <% } else { %>
                     <h3><%= stop.startTime %> - <%= stop.endTime %></h3>
-                  <% } %>
+                  <% } %>                  
                   <h2><span class="fancy"> <%= stop.name %> </span></h2>
                 </div>
                 <a href="https://www.google.com/maps/dir/?api=1&destination=<%= stop.latitude %>,<%= stop.longitude %>"><i class="fa-solid fa-map"></i></a>
