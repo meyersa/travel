@@ -178,6 +178,13 @@ app.post("/api/new", async (req, res) => {
 
   logger.debug("Form Input Validated");
 
+  const IN_KEY = cleanAndVerify(req.body["auth"])
+  if (IN_KEY != SERVER_KEY) {
+    logger.warn("Invalid API Key", IN_KEY);
+    return res.status(401).send("Unauthorized");
+  }
+  logger.debug("Valid API Key");
+  
   // Check ratelimit
   if (!checkRate()) {
     return res.status(429).send("Rate limited. Please wait.");
