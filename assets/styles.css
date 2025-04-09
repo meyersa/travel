@@ -49,7 +49,7 @@ h1 {
 
 i {
   color: var(--dark-grey);
-  font-size: 2rem;
+  font-size: 150%;
 }
 
 a > i:hover {
