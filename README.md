@@ -8,12 +8,20 @@ The goal of this project is to have a travel agent powered by GPTs. Instead of j
 
 From there, it creates an interactive map friendly view of the trip. Using Leaflet JS as a way to map it, interacting with Apple Maps so they can be used on your phone. 
 
-# Use
+## Use
 
 Clone repository and run `npm i` to install necessary packages 
 
-Some ENVs will also need to be set (optionally in a .env at the root)
-- MONGO_DB=database to use
-- MONGO_URL=mongodb://user:pass@host:27017/
-- SERVER_KEY=Basic API key to use for securing connection
-- OPENAI_KEY=Key for OpenAPI
+## ENVs 
+
+| Name                  | Description                                             | Default        |
+|-----------------------|---------------------------------------------------------|----------------|
+| MONGO_DB              | Mongo Database to use                                   |                |
+| MONGO_URL             | MongoDB connection string                               |                |
+| SERVER_KEY            | Basic API key to use for securing connection            |                |
+| OPENAI_KEY            | Key for OpenAPI with ChatGPT access                     |                |
+| PORT                  | Port for server to listen on                            | 3000           |
+| DEFAULT_TTL           | NodeCache TTL (MS)                                      | 3600           |
+| LOG_LEVEL             | Log level                                               | debug          |
+| IMAGE_SUGGESTED_LIMIT | Number of images to generate per trip                   | 5              |
+| CHATGPT_RETRIES       | Number of retries for ChatGPT                           | 3              |
