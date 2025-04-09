@@ -166,8 +166,6 @@ app.post("/api/new", async (req, res) => {
   try {
     body = newTrip.parse({
       id: cleanAndVerify(formResp["id"]),
-      where: cleanAndVerify(formResp["where"]),
-      when: cleanAndVerify(formResp["when"]),
       description: cleanAndVerify(formResp["description"], undefined, 3000),
     });
   } catch (err) {

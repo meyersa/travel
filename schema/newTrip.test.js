@@ -4,9 +4,7 @@ import { ZodError } from "zod";
 
 const EXAMPLE_TRIP = {
     "id": String(Date.now()),
-    "when": "Tomorrow", 
-    "where": "your moms house",
-    "description": "I haven't thought about this yet"
+    "description": "Tomorrow, idk where, but I haven't thought about this yet"
 
 }
 
@@ -17,7 +15,7 @@ test("See if parsing works", () => {
 
 test("See if bad parsing does not work", () => {
     var new_example = EXAMPLE_TRIP
-    new_example.when = "t" 
+    new_example.description = "t" 
 
     expect(() => newTrip.parse(new_example)).throws(ZodError)
 
