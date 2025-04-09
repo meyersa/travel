@@ -38,7 +38,7 @@ const additionalInfoSchema = z.object({
 });
 
 // Main Trip Schema
-const tripSchema = z.object({
+export const tripSchema = z.object({
   id: idSchema,
   name: textSchema,
   startDate: dateSchema,
@@ -51,5 +51,3 @@ const tripSchema = z.object({
   days: z.array(daySchema).min(1),
   additional: z.array(additionalInfoSchema).optional(),
 });
-
-export { tripSchema };

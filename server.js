@@ -3,10 +3,10 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { getImage } from "./lib/mongo/images.js";
 import { configDotenv } from "dotenv";
-import { generateTrip } from "./lib/openAI/generateTrip.js";
 import { preFlightLog, cleanAndVerify } from "./lib/util.js";
 import { getTripById, getTrips, getFail, populateFail } from "./lib/mongo/trips.js";
 import { newTrip } from "./schema/newTrip.js";
+import { createTrip } from "./lib/tripInterface.js";
 configDotenv();
 
 const { SERVER_KEY } = process.env;
@@ -141,23 +141,25 @@ app.get("/api/check", async (req, res) => {
     return res.status(400).send("Trip ID is required");
   }
 
-  try {
-    await getTripById(id);
+  const trip = await getTripById(id);
+  if (trip) {
+    console.log("Trip exists")
     return res.status(200).json({ state: "exists" });
-  } catch (err) {
-    // Doesn't exist then check fails
-    try {
-      await getFail(id);
-      return res.status(200).json({ state: "fail" });
-    } catch (err) {
-      return res.status(200).json({ state: "no" });
-    }
+
+  } 
+
+  const fail = await getFail(id);
+  if (fail) {
+    console.log("Trip Failed")
+    return res.status(200).json({ state: "fail" });
+
   }
+
+  console.log("Trip does not exist")
+  return res.status(200).json({ state: "no" });
 });
 
-/*
- * Create Trip from Form (When the trip is not already made)
- */
+// Create Trip Form
 app.post("/api/new", async (req, res) => {
   preFlightLog(req);
 
@@ -165,8 +167,8 @@ app.post("/api/new", async (req, res) => {
   let body;
   try {
     body = newTrip.parse({
-      id: cleanAndVerify(formResp["id"]),
-      description: cleanAndVerify(formResp["description"], undefined, 3000),
+      id: cleanAndVerify(req.body["id"]),
+      description: cleanAndVerify(req.body["description"], undefined, 3000),
     });
   } catch (err) {
     console.error("Could not process /new input", err);
@@ -184,24 +186,14 @@ app.post("/api/new", async (req, res) => {
 
   var tripJSON;
   try {
-    tripJSON = await generateTrip(body);
+    tripJSON = await createTrip(body);
   } catch (err) {
-    console.error("Failed to query ChatGPT with /add contents", err);
-    await populateFail(id);
-  }
-
-  try {
-    if (await populateAndSubmit(tripJSON)) {
-    }
-  } catch (err) {
-    console.error("Failed to process tripJSON", err);
+    console.error("Unable to create trip", err);
     await populateFail(id);
   }
 });
 
-/*
- * Create trip from JSON (When the trip is already made)
- */
+// Create trip from JSON
 app.post("/api/add", async (req, res) => {
   preFlightLog(req);
 
@@ -229,9 +221,7 @@ app.post("/api/add", async (req, res) => {
   }
 });
 
-/*
- * Get an image by ID
- */
+// Get an image by ID
 app.get("/api/images", async (req, res) => {
   preFlightLog(req);
 
